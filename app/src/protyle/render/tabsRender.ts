@@ -210,7 +210,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     items.forEach((item, index) => {
                         const button = document.createElement("button");
                         button.type = "button";
-                        button.className = "tabs-tab";
+                        button.className = "tabs-tab ariaLabel";
                         button.setAttribute("role", "tab");
                         button.dataset.tabId = itemID(item);
                         button.id = `${state.instance}-tab-${index}`;
@@ -238,7 +238,8 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                         const marker = item.getAttribute("tabs-task");
                         if (marker !== null) {
                             const task = document.createElement("span");
-                            task.className = "tabs-task";
+                            task.className = "tabs-task ariaLabel";
+                            task.setAttribute("data-position", "north");
                             task.dataset.tabId = itemID(item);
                             task.setAttribute("role", "checkbox");
                             task.setAttribute("aria-label", controller.options.taskLabel || "Task");
@@ -406,9 +407,6 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                         `${Math.max(0, rect.right - listRect.right) * scale}px ` +
                         `${Math.max(0, rect.bottom - listRect.bottom) * scale}px ` +
                         `${Math.max(0, listRect.left - rect.left) * scale}px)`;
-                });
-                list.querySelectorAll<HTMLElement>(".tabs-tab-label").forEach(label => {
-                    label.parentElement.classList.toggle("ariaLabel", label.scrollWidth > label.clientWidth);
                 });
                 controller.resize.observe(tabs);
                 if (!tabs.closest('.tab-item[data-tabs-hidden="true"]') && state.renderedActive !== state.active) {
