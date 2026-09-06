@@ -15,6 +15,7 @@ export interface ITabsRenderOptions {
     task?: (item: HTMLElement) => void;
     taskMenu?: (item: HTMLElement) => void;
     taskLabel?: string;
+    endEdit?: () => void;
 }
 
 interface ITabState {
@@ -191,7 +192,12 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                 }
                 const signature = JSON.stringify([readonly, ...items.map(item => [itemID(item),
                     item.getAttribute("tabs-task"), item.dataset.tabsEditing === "true" ? null : getTabTitle(item)?.innerHTML])]);
+                let previousScroll: {left: number, top: number};
                 if (state.signature !== signature || !header.firstElementChild) {
+                    const previousList = header.querySelector<HTMLElement>(".tabs-list");
+                    if (previousList) {
+                        previousScroll = {left: previousList.scrollLeft, top: previousList.scrollTop};
+                    }
                     const focusedID = (document.activeElement as HTMLElement)?.dataset?.tabId;
                     const focusedTask = document.activeElement?.classList.contains("tabs-task");
                     header.replaceChildren();
@@ -238,8 +244,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                         const marker = item.getAttribute("tabs-task");
                         if (marker !== null) {
                             const task = document.createElement("span");
-                            task.className = "tabs-task ariaLabel";
-                            task.setAttribute("data-position", "north");
+                            task.className = "tabs-task";
                             task.dataset.tabId = itemID(item);
                             task.setAttribute("role", "checkbox");
                             task.setAttribute("aria-label", controller.options.taskLabel || "Task");
@@ -329,7 +334,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     if (focusedID) {
                         const focusedButton = Array.from(list.children).find(child =>
                             (child as HTMLElement).dataset.tabId === focusedID) as HTMLElement;
-                        (focusedTask ? focusedButton?.querySelector<HTMLElement>(".tabs-task") : focusedButton)?.focus();
+                        (focusedTask ? focusedButton?.querySelector<HTMLElement>(".tabs-task") : focusedButton)?.focus({preventScroll: true});
                     }
                 }
                 const list = header.querySelector<HTMLElement>(".tabs-list");
@@ -370,6 +375,9 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     button.draggable = !readonly && !editing && !!controller.options.move;
                     const info = item.querySelector<HTMLElement>(":scope > .tab-item-info");
                     if (info) {
+                        if (!editing && info.classList.contains("tabs-title-editor")) {
+                            controller.options.endEdit?.();
+                        }
                         info.classList.toggle("tabs-title-editor", editing);
                         if (!editing) {
                             info.removeAttribute("style");
@@ -377,6 +385,10 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     }
                 });
                 tabs.setAttribute("data-tabs-ready", "true");
+                if (previousScroll) {
+                    list.scrollLeft = previousScroll.left;
+                    list.scrollTop = previousScroll.top;
+                }
                 if (editingButton && !vertical) {
                     // 展开编辑标签后滚动到完整可见的位置，避免右侧页签的输入区域被裁切。
                     const listRect = list.getBoundingClientRect();

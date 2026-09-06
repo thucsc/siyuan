@@ -296,6 +296,7 @@ export class Toolbar {
             }
         });
         if (!hasText ||
+            !Array.from(range.getClientRects()).some(rect => rect.width > 0 && rect.height > 0) ||
             // 拖拽图片到最右侧
             (range.commonAncestorContainer.nodeType !== 3 && (range.commonAncestorContainer as HTMLElement).classList.contains("img"))) {
             this.element.classList.add("fn__none");

@@ -15,6 +15,19 @@ import {copyTextByType} from "../toolbar/util";
 import {Dialog} from "../../dialog";
 import {showMessage} from "../../dialog/message";
 import {getTaskListMarker, nextTaskListMarker} from "./taskListMarker";
+import {hideElements} from "../ui/hideElements";
+
+export const toggleTabsTasks = (protyle: IProtyle, tabs: HTMLElement) => {
+    const items = getTabItems(tabs);
+    const enabled = items.some(item => item.hasAttribute("tabs-task"));
+    changeTabs(protyle, [tabs], () => items.forEach(item => {
+        if (enabled) {
+            item.removeAttribute("tabs-task");
+        } else {
+            item.setAttribute("tabs-task", " ");
+        }
+    }));
+};
 
 export const setTabTask = (protyle: IProtyle, item: HTMLElement, marker: string) => {
     if (!item.isConnected || !item.hasAttribute("tabs-task") || !getTaskListMarker(`[${marker}]`, false)) {
@@ -94,9 +107,7 @@ export const renameTab = (protyle: IProtyle, item: HTMLElement) => {
 const addTab = (protyle: IProtyle, tabs: HTMLElement) => {
     const item = newTab(protyle);
     const items = getTabItems(tabs);
-    const active = items.find(entry => entry.dataset.tabsHidden === "false") ||
-        items.find(entry => entry.dataset.nodeId === tabs.getAttribute("tabs-active-id")) || items[0];
-    if (active?.hasAttribute("tabs-task")) {
+    if (items.some(entry => entry.hasAttribute("tabs-task"))) {
         item.setAttribute("tabs-task", " ");
     }
     changeTabs(protyle, [tabs], () => {
@@ -174,6 +185,9 @@ export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLEle
         click: () => {copyTextByType([item.dataset.nodeId], "ref");},
     }]});
     if (canEdit(protyle, tabs)) {
+        menu.addItem({icon: "iconCheck", label: lang.checkbox,
+            checked: getTabItems(tabs).some(entry => entry.hasAttribute("tabs-task")),
+            click: () => toggleTabsTasks(protyle, tabs)});
         if (item.hasAttribute("tabs-task")) {
             menu.addItem({icon: "iconCheck", label: `${lang.check} - ${lang.custom}`, click: () => editTabTask(protyle, item)});
         }
@@ -216,6 +230,7 @@ export const initEditorTabs = (protyle: IProtyle) => {
         taskLabel: window.siyuan.languages.check,
         task: item => setTabTask(protyle, item, nextTaskListMarker(item.getAttribute("tabs-task"))),
         taskMenu: item => editTabTask(protyle, item),
+        endEdit: () => hideElements(["toolbar"], protyle),
         select: (tabs, id) => {
             if (!canEdit(protyle, tabs) || tabs.getAttribute("tabs-active-id") === id) {
                 return;
