@@ -116,6 +116,10 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
     const controller: ITabsRoot = {
         options,
         select(tabs, id, persist) {
+            // 文档刚插入时观察器尚未渲染，先初始化状态以支持立即跳转到隐藏页签。
+            if (!states.has(tabs)) {
+                controller.render();
+            }
             const state = states.get(tabs);
             if (!state || !getTabItems(tabs).some(item => itemID(item) === id)) {
                 return;

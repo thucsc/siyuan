@@ -11,6 +11,7 @@ import {avRender} from "../render/av/render";
 import {isHiddenTabContent} from "../render/tabsVisibility";
 import {queueTransaction} from "../util/transactionQueue";
 import {remapTabsDOMIDs} from "../util/tabsCopy";
+import {copyTextByType} from "../toolbar/util";
 
 const canEdit = (protyle: IProtyle, element: Element) => !protyle.disabled &&
     !protyle.options.action.includes(Constants.CB_GET_HISTORY) && !element.closest(".protyle-wysiwyg__embed");
@@ -116,12 +117,17 @@ export const setTabsPosition = (protyle: IProtyle, tabs: HTMLElement, position: 
 };
 
 export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLElement, anchor: HTMLElement) => {
-    if (!canEdit(protyle, tabs)) {
+    if (!item) {
         return;
     }
     const lang = window.siyuan.languages;
     const menu = new Menu();
-    if (item) {
+    menu.addItem({icon: "iconCopy", label: lang.copy, submenu: [{
+        icon: "iconRef",
+        label: lang.copyBlockRef,
+        click: () => {copyTextByType([item.dataset.nodeId], "ref");},
+    }]});
+    if (canEdit(protyle, tabs)) {
         menu.addItem({icon: "iconEdit", label: lang.rename, click: () => renameTab(protyle, item)});
         menu.addItem({icon: "iconCopy", label: lang.duplicateCopy, click: () => {
             const copy = item.cloneNode(true) as HTMLElement;

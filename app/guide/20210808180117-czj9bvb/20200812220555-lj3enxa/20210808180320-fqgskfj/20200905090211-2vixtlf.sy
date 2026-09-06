@@ -6,7 +6,7 @@
 		"id": "20200905090211-2vixtlf",
 		"title": "内容块类型",
 		"type": "doc",
-		"updated": "20260906084311"
+		"updated": "20260906133808"
 	},
 	"Children": [
 		{
@@ -1369,7 +1369,7 @@
 			"HeadingLevel": 2,
 			"Properties": {
 				"id": "20210104090624-9qgquxh",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"Children": [
 				{
@@ -2778,7 +2778,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260905124213-9etkynq",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"HeadingLevel": 3,
 			"Children": [
@@ -2868,12 +2868,30 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-812ct16",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"Children": [
 				{
 					"Type": "NodeText",
-					"Data": "输入 / 并选择页签块可创建一组页签。通过 + 添加页签，点击页签块的块标，在页签块子菜单中选择顶部页签或左侧页签。双击标题或使用重命名菜单，可以在页签标题处直接编辑文字。标题与提示块一样支持所见即所得编辑，可通过行级工具栏设置加粗、颜色等样式，修改文字时保留已有格式。"
+					"Data": "输入 / 并选择页签块可创建一组页签。通过 + 添加页签，点击页签块的块标，在页签块子菜单中选择顶部页签或左侧页签。双击标题或使用重命名菜单，可以在页签标题处直接编辑文字。标题与提示块一样支持所见即所得编辑，可通过行级工具栏设置加粗、颜色等样式，修改文字时保留已有格式。右键点击页签标题，选择 "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "复制"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " - "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "复制为块引用"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " 可复制该页签的块引用。点击引用会切换到对应页签；嵌套页签会逐层展开。移动端也可通过编辑器插入菜单新建页签块。"
 				}
 			]
 		},

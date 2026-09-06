@@ -6,7 +6,7 @@
 		"id": "20200924101225-k254i8g",
 		"title": "Content Block Type",
 		"type": "doc",
-		"updated": "20260906084311"
+		"updated": "20260906133808"
 	},
 	"Children": [
 		{
@@ -1336,7 +1336,7 @@
 			"HeadingLevel": 2,
 			"Properties": {
 				"id": "20210104091538-a55chyw",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"Children": [
 				{
@@ -2696,7 +2696,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260905124213-wbxn79t",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"HeadingLevel": 3,
 			"Children": [
@@ -2786,12 +2786,30 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-knct56j",
-				"updated": "20260906084311"
+				"updated": "20260906133808"
 			},
 			"Children": [
 				{
 					"Type": "NodeText",
-					"Data": "Type / and choose the tabs block to create a group. Use + to add tabs and open the tabs block icon menu to choose top or left tabs from the Tabs submenu. Double-click a title or use Rename to edit the text directly in the tab. Like callout titles, tab titles support WYSIWYG editing: use the inline toolbar to apply bold, colors, and other styles while preserving existing formatting as you edit the text."
+					"Data": "Type / and choose the tabs block to create a group. Use + to add tabs and open the tabs block icon menu to choose top or left tabs from the Tabs submenu. Double-click a title or use Rename to edit the text directly in the tab. Like callout titles, tab titles support WYSIWYG editing: use the inline toolbar to apply bold, colors, and other styles while preserving existing formatting as you edit the text. Right-click a tab title and choose "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "Copy"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " - "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "Copy block ref"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " to copy a block reference to that tab. Clicking the reference switches to the target tab and reveals each enclosing tab when nested. On mobile, you can also create a tabs block from the editor insert menu."
 				}
 			]
 		},

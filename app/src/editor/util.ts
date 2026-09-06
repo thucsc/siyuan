@@ -37,6 +37,7 @@ import {hideElements} from "../protyle/ui/hideElements";
 import {isBrowserRenderableImagePath} from "../util/imageURL";
 import {forEachPluginSubscriber} from "../plugin/EventBusCore";
 import {getHostCapabilities} from "../util/hostCapabilities";
+import {revealTabsForTarget} from "../protyle/render/tabsRender";
 
 const isSameCustomTab = (type: string, data: any, options: IOpenFileOptions) => {
     if (!options.custom || (options.custom.id && options.custom.id !== type)) {
@@ -428,6 +429,9 @@ const switchEditor = (editor: Editor, options: IOpenFileOptions, allModels: IMod
             return true;
         }
     });
+    if (nodeElement) {
+        revealTabsForTarget(nodeElement);
+    }
     if ((!nodeElement || nodeElement?.clientHeight === 0) && options.id !== options.rootID) {
         const getDocParam: IObject = {
             id: options.id,
