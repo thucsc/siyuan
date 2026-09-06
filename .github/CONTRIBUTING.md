@@ -10,7 +10,7 @@
 
 Electron 44 requires macOS 13 or later and supports only 64-bit Windows and Linux builds.
 
-Install pnpm: `npm install -g pnpm@11.18.0`
+Install pnpm: `npm install -g pnpm@11.25.0`
 
 <details>
 <summary>For China mainland</summary>

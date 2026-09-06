@@ -10,7 +10,7 @@
 
 Electron 44 要求 macOS 13 或更高版本，Windows 和 Linux 仅支持 64 位构建。
 
-安装 pnpm：`npm install -g pnpm@11.18.0`
+安装 pnpm：`npm install -g pnpm@11.25.0`
 
 <details>
 <summary>适用于中国大陆</summary>
