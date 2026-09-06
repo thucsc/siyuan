@@ -27,6 +27,7 @@ import {
     getSemanticMarkerPrefixLengthForNode,
     stripSemanticMarkersFromRangeText
 } from "./inlineElementMarker";
+import {getSelectAllBlockAction} from "../wysiwyg/blockSelection";
 
 const selectIsEditor = (editor: Element, range?: Range) => {
     if (!range) {
@@ -63,12 +64,15 @@ export const fixTableRange = (range: Range) => {
 };
 
 export const selectAll = (protyle: IProtyle, nodeElement: Element, range: Range): boolean => {
-    const selectElements = protyle.wysiwyg.element.querySelectorAll(".protyle-wysiwyg--select");
-    if (selectElements.length > 0 && protyle.wysiwyg.element.childElementCount === selectElements.length &&
-        selectElements[0].parentElement === protyle.wysiwyg.element) {
-        return false;
+    const blockSelectionAction = getSelectAllBlockAction(protyle.wysiwyg.element);
+    if (blockSelectionAction !== "none") {
+        range.collapse(true);
+        hideElements(["toolbar"], protyle);
+        if (blockSelectionAction === "keep") {
+            return false;
+        }
     }
-    const editElement = getContenteditableElement(nodeElement);
+    const editElement = blockSelectionAction === "none" ? getContenteditableElement(nodeElement) : undefined;
     if (editElement) {
         let position;
         if (editElement.tagName === "TABLE") {
@@ -131,7 +135,7 @@ export const selectAll = (protyle: IProtyle, nodeElement: Element, range: Range)
         }
     }
     range.collapse(true);
-    hideElements(["select"], protyle);
+    hideElements(["select", "toolbar"], protyle);
     const ids: string[] = [];
     Array.from(protyle.wysiwyg.element.children).forEach(item => {
         const nodeId = item.getAttribute("data-node-id");
