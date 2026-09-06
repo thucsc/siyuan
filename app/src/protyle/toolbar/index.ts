@@ -55,7 +55,7 @@ import {insertEmptyBlock} from "../../block/util";
 import {matchHotKey} from "../util/hotKey";
 import {hideElements} from "../ui/hideElements";
 import {electronUndo} from "../undo";
-import {mergeSameInlineElement, previewTemplate, toolbarKeyToMenu} from "./util";
+import {clearTemplatePreview, mergeSameInlineElement, previewTemplate, toolbarKeyToMenu} from "./util";
 import {showMessage} from "../../dialog/message";
 import {InlineMath} from "./InlineMath";
 import {InlineMemo} from "./InlineMemo";
@@ -2092,6 +2092,16 @@ export class Toolbar {
         const listElement = this.subElement.querySelector(".b3-list");
         resizeSide(this.subElement.querySelector(".toolbarResize"), listElement.parentElement);
         const previewElement = this.subElement.firstElementChild.lastElementChild;
+        const previewObserver = new MutationObserver(() => {
+            if (this.subElement.classList.contains("fn__none") || !this.subElement.contains(previewElement)) {
+                closeSubElement(this);
+            }
+        });
+        previewObserver.observe(this.subElement, {attributes: true, attributeFilter: ["class"], childList: true});
+        this.subElementCloseCB = () => {
+            previewObserver.disconnect();
+            clearTemplatePreview(previewElement);
+        };
         let previewPath: string;
         listElement.addEventListener("mouseover", (event) => {
             const target = event.target as HTMLElement;
