@@ -63,6 +63,11 @@ export const fixTableRange = (range: Range) => {
 };
 
 export const selectAll = (protyle: IProtyle, nodeElement: Element, range: Range): boolean => {
+    const selectElements = protyle.wysiwyg.element.querySelectorAll(".protyle-wysiwyg--select");
+    if (selectElements.length > 0 && protyle.wysiwyg.element.childElementCount === selectElements.length &&
+        selectElements[0].parentElement === protyle.wysiwyg.element) {
+        return false;
+    }
     const editElement = getContenteditableElement(nodeElement);
     if (editElement) {
         let position;
@@ -126,11 +131,6 @@ export const selectAll = (protyle: IProtyle, nodeElement: Element, range: Range)
         }
     }
     range.collapse(true);
-    const selectElements = protyle.wysiwyg.element.querySelectorAll(".protyle-wysiwyg--select");
-    if (selectElements.length > 0 && protyle.wysiwyg.element.childElementCount === selectElements.length &&
-        selectElements[0].parentElement === protyle.wysiwyg.element) {
-        return false;
-    }
     hideElements(["select"], protyle);
     const ids: string[] = [];
     Array.from(protyle.wysiwyg.element.children).forEach(item => {
