@@ -864,7 +864,7 @@ export const hintMoveBlock = async (pathString: string, sourceElements: Element[
                     if (targetElement) {
                         setBlockSelectionModeElement(editorElement, targetElement);
                         focusBlock(targetElement);
-                        countBlockWord(getBlockSelectionStatusIDs(editorElement), protyle.block.rootID);
+                        countBlockWord(getBlockSelectionStatusIDs(editorElement), protyle);
                     }
                 } : undefined,
             });
@@ -905,7 +905,7 @@ export const hintMoveBlock = async (pathString: string, sourceElements: Element[
         if (nextSelectionModeElement) {
             setBlockSelectionModeElement(editorElement, nextSelectionModeElement);
             focusBlock(nextSelectionModeElement);
-            countBlockWord(getBlockSelectionStatusIDs(editorElement), protyle.block.rootID);
+            countBlockWord(getBlockSelectionStatusIDs(editorElement), protyle);
         }
     }
     // 跨文档不支持撤销

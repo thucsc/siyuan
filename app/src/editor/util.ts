@@ -653,7 +653,7 @@ export const updatePanelByEditor = (options: {
         if (options.focus) {
             if (options.protyle.toolbar.range) {
                 focusByRange(options.protyle.toolbar.range);
-                countSelectWord(options.protyle.toolbar.range, options.protyle.block.rootID);
+                countSelectWord(options.protyle.toolbar.range, options.protyle);
                 if (options.pushBackStack && options.protyle.preview.element.classList.contains("fn__none")) {
                     pushBack(options.protyle, options.protyle.toolbar.range);
                 }
@@ -662,7 +662,7 @@ export const updatePanelByEditor = (options: {
                 if (options.pushBackStack && options.protyle.preview.element.classList.contains("fn__none")) {
                     pushBack(options.protyle, undefined, options.protyle.wysiwyg.element.firstElementChild);
                 }
-                countBlockWord([], options.protyle.block.rootID);
+                countBlockWord([], options.protyle);
             }
         }
         if (window.siyuan.config.fileTree.alwaysSelectOpenedFile && options.protyle) {

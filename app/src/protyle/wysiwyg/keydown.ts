@@ -156,7 +156,7 @@ import {
 } from "./blockSelection";
 
 const countBlockSelectionMode = (protyle: IProtyle) => {
-    countBlockWord(getBlockSelectionStatusIDs(protyle.wysiwyg.element), protyle.block.rootID);
+    countBlockWord(getBlockSelectionStatusIDs(protyle.wysiwyg.element), protyle);
 };
 
 const syncBlockSelectionModeToSelectionEnd = (protyle: IProtyle, direction: "up" | "down") => {
@@ -376,7 +376,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                 protyle.wysiwyg.element.blur();
                 if (blockSelectionModeElement) {
                     clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                 }
                 // 阻止中文输入的残留
                 setTimeout(() => {
@@ -389,7 +389,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                 protyle.wysiwyg.element.blur();
                 if (blockSelectionModeElement) {
                     clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                 }
                 setTimeout(() => {
                     insertEmptyBlock(protyle, "beforebegin", blockSelectionModeElement);
@@ -530,7 +530,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                         countBlockSelectionMode(protyle);
                     } else {
                         nextElement.classList.add(BLOCK_SELECTION_CLASS);
-                        countBlockWord([nextElement.getAttribute("data-node-id")]);
+                        countBlockWord([nextElement.getAttribute("data-node-id")], protyle);
                     }
                     const bottom = nextElement.getBoundingClientRect().bottom - protyle.contentElement.getBoundingClientRect().bottom;
                     if (bottom > 0) {
@@ -567,7 +567,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                         event.preventDefault();
                         if (blockSelectionModeElement) {
                             clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                            countBlockWord([], protyle.block.rootID);
+                            countBlockWord([], protyle);
                         }
                     } else if (protyle.contentElement.scrollTop !== 0) {
                         protyle.contentElement.scrollTop = 0;
@@ -581,7 +581,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                             countBlockSelectionMode(protyle);
                         } else {
                             previousElement.classList.add(BLOCK_SELECTION_CLASS);
-                            countBlockWord([previousElement.getAttribute("data-node-id")]);
+                            countBlockWord([previousElement.getAttribute("data-node-id")], protyle);
                         }
                         const top = previousElement.getBoundingClientRect().top - protyle.contentElement.getBoundingClientRect().top;
                         if (top < 0) {
@@ -626,7 +626,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             let inputNodeElement = nodeElement;
             if (blockSelectionModeElement) {
                 clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                countBlockWord([], protyle.block.rootID);
+                countBlockWord([], protyle);
                 if (!isNotEditBlock(blockSelectionModeElement)) {
                     if (!blockSelectionModeElement.contains(inputRange.startContainer)) {
                         focusBlock(blockSelectionModeElement);
@@ -897,7 +897,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                     protyle.wysiwyg.element.lastElementChild?.scrollIntoView(false);
                 }
                 protyle.toolbar.render(protyle, selectedRange);
-                countSelectWord(selectedRange, protyle.block.rootID);
+                countSelectWord(selectedRange, protyle);
             }
             event.preventDefault();
             event.stopPropagation();
@@ -1699,7 +1699,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                 endTrackedRangeInsertion(trackedRangeInsertion);
             }
             if (blockSelectionModeElement) {
-                countBlockWord([], protyle.block.rootID);
+                countBlockWord([], protyle);
             }
             return;
         }
@@ -1952,15 +1952,15 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                     window.siyuan.menus.menu.remove(true);
                 } else if (blockSelectionModeElement) {
                     clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                 } else if (nodeElement.classList.contains(BLOCK_SELECTION_CLASS)) {
                     hideElements(["select"], protyle);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                 } else {
                     hideElements(["select"], protyle);
                     range.collapse(false);
                     setBlockSelectionModeElement(protyle.wysiwyg.element, nodeElement);
-                    countBlockWord([nodeElement.getAttribute("data-node-id")], protyle.block.rootID);
+                    countBlockWord([nodeElement.getAttribute("data-node-id")], protyle);
                 }
             }
             event.stopPropagation();
@@ -2648,7 +2648,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
                     protyle.wysiwyg.preventKeyup = true;
                 }
                 clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                countBlockWord([], protyle.block.rootID);
+                countBlockWord([], protyle);
             }
             if (tabNodeElement.getAttribute("data-type") === "NodeCodeBlock") {
                 if (selectText !== "" || !event.shiftKey) {
@@ -2836,7 +2836,7 @@ export const keydown = (protyle: IProtyle, editorElement: HTMLElement) => {
             hideElements(["select"], protyle);
             if (blockSelectionModeElement) {
                 clearBlockSelectionMode(protyle.wysiwyg.element, true);
-                countBlockWord([], protyle.block.rootID);
+                countBlockWord([], protyle);
             }
         }
 

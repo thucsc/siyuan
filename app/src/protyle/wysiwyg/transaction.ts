@@ -550,7 +550,7 @@ const promiseTransaction = (options: {
         callback: (responseTransaction: {doOperations: IOperation[]}) => {
             invalidateViewFoldRequests(protyle);
             const ids = getBlockSelectionStatusIDs(protyle.wysiwyg.element);
-            countBlockWord(ids, protyle.block.rootID, true);
+            countBlockWord(ids, protyle, true);
             if (!options.skipSync) {
                 responseTransaction.doOperations.forEach((operation: IOperation) => {
                     if (handleViewFoldSourceOperation(protyle, operation)) {
