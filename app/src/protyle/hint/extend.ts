@@ -854,6 +854,9 @@ export const hintMoveBlock = async (pathString: string, sourceElements: Element[
     if (protyle.block.showAll && editorElement.childElementCount === 0) {
         const focusID = protyle.block.parent2ID;
         setTimeout(() => {
+            if (!document.contains(protyle.element) || editorElement.childElementCount > 0) {
+                return;
+            }
             zoomOut({
                 protyle,
                 id: focusID,
