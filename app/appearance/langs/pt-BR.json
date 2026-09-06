@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "Este movimento entra em conflito com as regras de ordenação atuais. Remover as regras de ordenação desta visualização e salvar a ordem completa após arrastar como ordem personalizada?",
 	"templateManager": "Gerenciador de modelos",
 	"templateSource": "Código-fonte do modelo",
 	"templatePreview": "Pré-visualizar modelo",

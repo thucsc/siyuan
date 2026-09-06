@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "Este movimiento entra en conflicto con las reglas de ordenación actuales. ¿Quieres eliminar las reglas de ordenación de esta vista y guardar el orden completo resultante del arrastre como orden personalizado?",
 	"templateManager": "Gestor de plantillas",
 	"templateSource": "Código de la plantilla",
 	"templatePreview": "Vista previa de la plantilla",

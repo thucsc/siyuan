@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "이 이동은 현재 정렬 규칙과 충돌합니다. 이 보기의 정렬 규칙을 제거하고 드래그 후의 전체 순서를 사용자 지정 순서로 저장할까요?",
 	"templateManager": "템플릿 관리",
 	"templateSource": "템플릿 소스",
 	"templatePreview": "템플릿 미리보기",

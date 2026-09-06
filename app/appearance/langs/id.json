@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "Pemindahan ini bertentangan dengan aturan pengurutan saat ini. Hapus aturan pengurutan untuk tampilan ini dan simpan urutan lengkap setelah penyeretan sebagai urutan khusus?",
 	"templateManager": "Pengelola templat",
 	"templateSource": "Sumber templat",
 	"templatePreview": "Pratinjau templat",

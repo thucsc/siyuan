@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "Tento presun je v rozpore s aktuálnymi pravidlami zoradenia. Odstrániť pravidlá zoradenia tohto zobrazenia a uložiť úplné poradie po presunutí ako vlastné poradie?",
 	"templateManager": "Správca šablón",
 	"templateSource": "Zdrojový kód šablóny",
 	"templatePreview": "Náhľad šablóny",

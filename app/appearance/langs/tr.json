@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "Bu taşıma mevcut sıralama kurallarıyla çelişiyor. Bu görünümün sıralama kuralları kaldırılsın ve sürükleme sonrasındaki tam sıra özel sıra olarak kaydedilsin mi?",
 	"templateManager": "Şablon yöneticisi",
 	"templateSource": "Şablon kaynağı",
 	"templatePreview": "Şablonu önizle",

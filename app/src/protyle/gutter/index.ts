@@ -80,7 +80,7 @@ import {appearanceMenu, limitRecentFontStyleRows} from "../toolbar/Font";
 import {setPosition} from "../../util/setPosition";
 import {emitOpenMenu} from "../../plugin/EventBus";
 import {insertAttrViewBlockAnimation, selectRow, updateHeader} from "../render/av/row";
-import {getAVData, getAVSelectedItemPoints} from "../render/av/virtualScroll";
+import {getAVSelectedItemPoints} from "../render/av/virtualScroll";
 import {setAVItemAnchor} from "../render/av/rangeSelect";
 import {getAVFilteredTipContext, getAVViewID} from "../render/av/filteredTip";
 import {avContextmenu, duplicateCompletely} from "../render/av/action";
@@ -244,19 +244,6 @@ export class Gutter {
                         return true;
                     }
                 });
-                if (avElement.querySelector('.block__icon[data-type="av-sort"]')?.classList.contains("block__icon--active")) {
-                    const bodyElements = avElement.querySelectorAll(".av__body");
-                    if (bodyElements.length === 1) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        return;
-                    } else if (getAVData(avElement)?.view.group?.valueSource === "rendered" ||
-                        ["template", "created", "updated"].includes(bodyElements[0].getAttribute("data-dtype"))) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        return;
-                    }
-                }
                 const rowElement = avElement.querySelector(`.av__body${buttonElement.dataset.groupId ? `[data-group-id="${buttonElement.dataset.groupId}"]` : ""} .av__row[data-id="${buttonElement.dataset.rowId}"]`);
                 if (!rowElement.classList.contains("av__row--select")) {
                     clearSelect(["row"], avElement);

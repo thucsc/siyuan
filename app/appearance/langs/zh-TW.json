@@ -1,4 +1,5 @@
 {
+	"avDragRemoveSorts": "此次拖曳與目前的排序規則衝突。是否移除此檢視的排序規則，並將拖曳後的完整順序儲存為自訂順序？",
 	"templateManager": "範本管理",
 	"templateSource": "範本原始碼",
 	"templatePreview": "預覽範本",
