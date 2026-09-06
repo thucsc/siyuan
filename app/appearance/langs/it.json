@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Cerca modelli per nome o percorso",
+	"templateContextSearch": "Cerca documenti di contesto",
+	"templateContextTip": "Esegui il modello usando il titolo, l’ID e le altre informazioni del documento selezionato senza modificarlo",
 	"fileTreeDragRemoveSorts": "Questo spostamento è in conflitto con la regola di ordinamento attuale. Passare questa lista all’ordinamento personalizzato e salvare l’ordine completo dopo il trascinamento?",
 	"pasteAndKeepSourceFormat": "Incolla mantenendo la formattazione originale",
 	"templatePackageMoveTip": "Le cartelle dei pacchetti di modelli non possono essere rinominate o spostate",
@@ -6,7 +9,7 @@
 	"templateManager": "Gestione modelli",
 	"templateSource": "Sorgente del modello",
 	"templatePreview": "Anteprima del modello",
-	"templateContext": "Documento di anteprima",
+	"templateContext": "Contesto dell’anteprima",
 	"templateNewFolder": "Nuova cartella",
 	"templateDeleteTip": "Eliminare questo elemento e tutto il suo contenuto? I file eliminati vengono conservati in data/templates/.trash per il ripristino.",
 	"task": "Attività",

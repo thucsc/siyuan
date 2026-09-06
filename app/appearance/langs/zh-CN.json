@@ -1,4 +1,7 @@
 {
+	"templateSearch": "搜索模板名称或路径",
+	"templateContextSearch": "搜索上下文文档",
+	"templateContextTip": "使用所选文档的标题、ID 等信息运行模板，不会修改该文档",
 	"fileTreeDragRemoveSorts": "此次拖拽与当前排序规则冲突，是否将此列表切换为自定义排序，并保存拖拽后的完整顺序？",
 	"pasteAndKeepSourceFormat": "粘贴并保留源格式",
 	"templatePackageMoveTip": "模板包文件夹不支持重命名或移动",
@@ -6,7 +9,7 @@
 	"templateManager": "模板管理",
 	"templateSource": "模板源码",
 	"templatePreview": "预览模板",
-	"templateContext": "预览文档",
+	"templateContext": "预览上下文",
 	"templateNewFolder": "新建文件夹",
 	"templateDeleteTip": "删除此项目及其全部内容？删除的文件将保留在 data/templates/.trash 中，以便恢复。",
 	"task": "任务",

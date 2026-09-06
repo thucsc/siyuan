@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Rechercher des modèles par nom ou chemin",
+	"templateContextSearch": "Rechercher des documents de contexte",
+	"templateContextTip": "Exécuter le modèle avec le titre, l’identifiant et les autres informations du document sélectionné sans le modifier",
 	"fileTreeDragRemoveSorts": "Ce déplacement est incompatible avec la règle de tri actuelle. Passer cette liste au tri personnalisé et enregistrer l’ordre complet après le déplacement ?",
 	"pasteAndKeepSourceFormat": "Coller en conservant la mise en forme source",
 	"templatePackageMoveTip": "Les dossiers de paquets de modèles ne peuvent pas être renommés ni déplacés",
@@ -6,7 +9,7 @@
 	"templateManager": "Gestionnaire de modèles",
 	"templateSource": "Source du modèle",
 	"templatePreview": "Aperçu du modèle",
-	"templateContext": "Document d’aperçu",
+	"templateContext": "Contexte de l’aperçu",
 	"templateNewFolder": "Nouveau dossier",
 	"templateDeleteTip": "Supprimer cet élément et tout son contenu ? Les fichiers supprimés sont conservés dans data/templates/.trash pour permettre leur restauration.",
 	"task": "Tâche",

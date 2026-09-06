@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Pesquisar modelos por nome ou caminho",
+	"templateContextSearch": "Pesquisar documentos de contexto",
+	"templateContextTip": "Executar o modelo usando o título, o ID e outras informações do documento selecionado sem modificá-lo",
 	"fileTreeDragRemoveSorts": "Este movimento entra em conflito com a regra de ordenação atual. Alterar esta lista para ordenação personalizada e salvar a ordem completa após arrastar?",
 	"pasteAndKeepSourceFormat": "Colar mantendo a formatação original",
 	"templatePackageMoveTip": "As pastas de pacotes de modelos não podem ser renomeadas ou movidas",
@@ -6,7 +9,7 @@
 	"templateManager": "Gerenciador de modelos",
 	"templateSource": "Código-fonte do modelo",
 	"templatePreview": "Pré-visualizar modelo",
-	"templateContext": "Documento de pré-visualização",
+	"templateContext": "Contexto da pré-visualização",
 	"templateNewFolder": "Nova pasta",
 	"templateDeleteTip": "Excluir este item e todo o seu conteúdo? Os arquivos excluídos são mantidos em data/templates/.trash para recuperação.",
 	"task": "Tarefa",

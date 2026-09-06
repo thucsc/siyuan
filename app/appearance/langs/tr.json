@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Şablonları ada veya yola göre ara",
+	"templateContextSearch": "Bağlam belgelerini ara",
+	"templateContextTip": "Şablonu, seçilen belgenin başlığını, kimliğini ve diğer bilgilerini kullanarak belgeyi değiştirmeden çalıştırın",
 	"fileTreeDragRemoveSorts": "Bu taşıma geçerli sıralama kuralıyla çakışıyor. Bu liste özel sıralamaya geçirilsin ve sürükleme sonrası tam sıralama kaydedilsin mi?",
 	"pasteAndKeepSourceFormat": "Kaynak biçimlendirmesini koruyarak yapıştır",
 	"templatePackageMoveTip": "Şablon paketi klasörleri yeniden adlandırılamaz veya taşınamaz",
@@ -6,7 +9,7 @@
 	"templateManager": "Şablon yöneticisi",
 	"templateSource": "Şablon kaynağı",
 	"templatePreview": "Şablonu önizle",
-	"templateContext": "Önizleme belgesi",
+	"templateContext": "Önizleme bağlamı",
 	"templateNewFolder": "Yeni klasör",
 	"templateDeleteTip": "Bu öğe ve tüm içeriği silinsin mi? Silinen dosyalar kurtarma için data/templates/.trash içinde saklanır.",
 	"task": "Görev",

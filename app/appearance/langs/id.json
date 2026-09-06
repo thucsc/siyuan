@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Cari templat berdasarkan nama atau jalur",
+	"templateContextSearch": "Cari dokumen konteks",
+	"templateContextTip": "Jalankan templat menggunakan judul, ID, dan informasi lain dari dokumen yang dipilih tanpa mengubah dokumen tersebut",
 	"fileTreeDragRemoveSorts": "Pemindahan ini bertentangan dengan aturan pengurutan saat ini. Alihkan daftar ini ke pengurutan khusus dan simpan urutan lengkap setelah menyeret?",
 	"pasteAndKeepSourceFormat": "Tempel dan pertahankan pemformatan sumber",
 	"templatePackageMoveTip": "Folder paket templat tidak dapat diganti namanya atau dipindahkan",
@@ -6,7 +9,7 @@
 	"templateManager": "Pengelola templat",
 	"templateSource": "Sumber templat",
 	"templatePreview": "Pratinjau templat",
-	"templateContext": "Dokumen pratinjau",
+	"templateContext": "Konteks pratinjau",
 	"templateNewFolder": "Folder baru",
 	"templateDeleteTip": "Hapus item ini beserta seluruh isinya? Berkas yang dihapus disimpan di data/templates/.trash untuk dipulihkan.",
 	"task": "Tugas",

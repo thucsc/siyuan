@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Sjablonen zoeken op naam of pad",
+	"templateContextSearch": "Contextdocumenten zoeken",
+	"templateContextTip": "Voer het sjabloon uit met de titel, ID en andere informatie van het geselecteerde document zonder dat document te wijzigen",
 	"fileTreeDragRemoveSorts": "Deze verplaatsing is in strijd met de huidige sorteerregel. Deze lijst omzetten naar een aangepaste sortering en de volledige volgorde na het slepen opslaan?",
 	"pasteAndKeepSourceFormat": "Plakken met behoud van bronopmaak",
 	"templatePackageMoveTip": "Mappen van sjabloonpakketten kunnen niet worden hernoemd of verplaatst",
@@ -6,7 +9,7 @@
 	"templateManager": "Sjabloonbeheer",
 	"templateSource": "Sjabloonbron",
 	"templatePreview": "Sjabloonvoorbeeld",
-	"templateContext": "Voorbeelddocument",
+	"templateContext": "Voorbeeldcontext",
 	"templateNewFolder": "Nieuwe map",
 	"templateDeleteTip": "Dit item en alle inhoud verwijderen? Verwijderde bestanden blijven voor herstel bewaard in data/templates/.trash.",
 	"task": "Taak",

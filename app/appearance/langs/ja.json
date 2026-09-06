@@ -1,4 +1,7 @@
 {
+	"templateSearch": "テンプレート名またはパスを検索",
+	"templateContextSearch": "コンテキスト用ドキュメントを検索",
+	"templateContextTip": "選択したドキュメントのタイトルや ID などの情報を使ってテンプレートを実行します。ドキュメントは変更されません",
 	"fileTreeDragRemoveSorts": "この移動は現在の並び替えルールと競合します。このリストをカスタム順に切り替え、ドラッグ後の全体の順序を保存しますか？",
 	"pasteAndKeepSourceFormat": "元の書式を保持して貼り付け",
 	"templatePackageMoveTip": "テンプレートパッケージのフォルダーは名前の変更や移動ができません",
@@ -6,7 +9,7 @@
 	"templateManager": "テンプレート管理",
 	"templateSource": "テンプレートのソース",
 	"templatePreview": "テンプレートをプレビュー",
-	"templateContext": "プレビュー用ドキュメント",
+	"templateContext": "プレビューのコンテキスト",
 	"templateNewFolder": "新しいフォルダー",
 	"templateDeleteTip": "この項目とその内容をすべて削除しますか？削除したファイルは復元できるように data/templates/.trash に保持されます。",
 	"task": "タスク",

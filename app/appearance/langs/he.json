@@ -1,4 +1,7 @@
 {
+	"templateSearch": "חיפוש תבניות לפי שם או נתיב",
+	"templateContextSearch": "חיפוש מסמכי הקשר",
+	"templateContextTip": "הפעלת התבנית באמצעות הכותרת, המזהה ומידע נוסף מהמסמך שנבחר, ללא שינוי המסמך",
 	"fileTreeDragRemoveSorts": "העברה זו מתנגשת עם כלל המיון הנוכחי. להעביר רשימה זו למיון מותאם אישית ולשמור את הסדר המלא לאחר הגרירה?",
 	"pasteAndKeepSourceFormat": "הדבק ושמור על עיצוב המקור",
 	"templatePackageMoveTip": "לא ניתן לשנות שם או להעביר תיקיות של חבילות תבניות",
@@ -6,7 +9,7 @@
 	"templateManager": "מנהל תבניות",
 	"templateSource": "מקור התבנית",
 	"templatePreview": "תצוגה מקדימה של התבנית",
-	"templateContext": "מסמך לתצוגה מקדימה",
+	"templateContext": "הקשר לתצוגה מקדימה",
 	"templateNewFolder": "תיקייה חדשה",
 	"templateDeleteTip": "למחוק פריט זה ואת כל תוכנו? הקבצים שנמחקו נשמרים ב־data/templates/.trash לצורך שחזור.",
 	"task": "משימה",

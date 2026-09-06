@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Szukaj szablonów według nazwy lub ścieżki",
+	"templateContextSearch": "Szukaj dokumentów kontekstowych",
+	"templateContextTip": "Uruchom szablon, używając tytułu, ID i innych informacji z wybranego dokumentu, bez jego modyfikowania",
 	"fileTreeDragRemoveSorts": "To przeniesienie jest sprzeczne z bieżącą regułą sortowania. Przełączyć tę listę na sortowanie niestandardowe i zapisać pełną kolejność po przeciągnięciu?",
 	"pasteAndKeepSourceFormat": "Wklej z zachowaniem formatowania źródłowego",
 	"templatePackageMoveTip": "Nie można zmieniać nazw ani przenosić folderów pakietów szablonów",
@@ -6,7 +9,7 @@
 	"templateManager": "Menedżer szablonów",
 	"templateSource": "Źródło szablonu",
 	"templatePreview": "Podgląd szablonu",
-	"templateContext": "Dokument podglądu",
+	"templateContext": "Kontekst podglądu",
 	"templateNewFolder": "Nowy folder",
 	"templateDeleteTip": "Usunąć ten element i całą jego zawartość? Usunięte pliki są przechowywane w data/templates/.trash, aby można je było przywrócić.",
 	"task": "Zadanie",

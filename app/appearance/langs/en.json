@@ -1,4 +1,7 @@
 {
+	"templateSearch": "Search templates by name or path",
+	"templateContextSearch": "Search context documents",
+	"templateContextTip": "Run the template using the selected document's title, ID, and other information without modifying that document",
 	"fileTreeDragRemoveSorts": "This move conflicts with the current sort rule. Switch this list to custom sorting and save the complete order after dragging?",
 	"pasteAndKeepSourceFormat": "Paste and keep source formatting",
 	"templatePackageMoveTip": "Template package folders cannot be renamed or moved",
@@ -6,7 +9,7 @@
 	"templateManager": "Template manager",
 	"templateSource": "Template source",
 	"templatePreview": "Preview template",
-	"templateContext": "Preview document",
+	"templateContext": "Preview context",
 	"templateNewFolder": "New folder",
 	"templateDeleteTip": "Delete this item and all its contents? Deleted files are retained in data/templates/.trash for recovery.",
 	"task": "Task",

@@ -1,4 +1,7 @@
 {
+	"templateSearch": "搜尋範本名稱或路徑",
+	"templateContextSearch": "搜尋上下文文件",
+	"templateContextTip": "使用所選文件的標題、ID 等資訊執行範本，不會修改該文件",
 	"fileTreeDragRemoveSorts": "此次拖曳與目前排序規則衝突，是否將此清單切換為自訂排序，並儲存拖曳後的完整順序？",
 	"pasteAndKeepSourceFormat": "貼上並保留來源格式",
 	"templatePackageMoveTip": "範本套件資料夾不支援重新命名或移動",
@@ -6,7 +9,7 @@
 	"templateManager": "範本管理",
 	"templateSource": "範本原始碼",
 	"templatePreview": "預覽範本",
-	"templateContext": "預覽文件",
+	"templateContext": "預覽上下文",
 	"templateNewFolder": "新增資料夾",
 	"templateDeleteTip": "刪除此項目及其全部內容？刪除的檔案將保留在 data/templates/.trash 中，以便復原。",
 	"task": "任務",
