@@ -17,6 +17,7 @@
 package api
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/88250/lute/parse"
@@ -26,13 +27,15 @@ import (
 
 var clipboardThemeProperties = []string{"color", "background-color", "font-family", "font-size"}
 
+var clipboardTransparentColor = regexp.MustCompile(`(?i)^(transparent|#[0-9a-f]{3}0|#[0-9a-f]{6}00|(?:rgba|hsla)\([^)]*,\s*(?:0(?:\.0*)?|\.0+)%?\s*\)|(?:rgb|rgba|hsl|hsla)\([^)]*/\s*(?:0(?:\.0*)?|\.0+)%?\s*\))$`)
+
 // normalizeBrowserClipboardStyle 移除浏览器复制正文时附带的共同主题样式，保留局部格式差异。
 func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 	lower := strings.ToLower(dom)
 	if strings.Contains(lower, "data-type=") {
 		return dom
 	}
-	if !strings.Contains(lower, "-webkit-text-stroke-width") {
+	if !strings.Contains(lower, "style") {
 		return dom
 	}
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(dom))
@@ -44,6 +47,41 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 			documentSource = true
 		}
 	})
+	changed := false
+	if !documentSource {
+		doc.Find("[style]").Each(func(_ int, selection *goquery.Selection) {
+			decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(selection.Get(0)))
+			changed = changed || clipboardTransparentColor.MatchString(decl["background-color"])
+		})
+		// 网页链接自身的外观交给编辑器，子元素中的显式格式及语义标签继续保留。
+		doc.Find("a[href]").Each(func(_ int, selection *goquery.Selection) {
+			n := selection.Get(0)
+			for i := range n.Attr {
+				if n.Attr[i].Key != "style" {
+					continue
+				}
+				style := n.Attr[i].Val
+				remove := map[string]bool{"color": true, "background-color": true, "font-family": true, "font-size": true}
+				decl := parse.HTMLStyleDeclarations(style)
+				var retained strings.Builder
+				for _, key := range []string{"text-decoration", "text-decoration-line"} {
+					var parts []string
+					for _, part := range strings.Fields(decl[key]) {
+						if strings.EqualFold(part, "underline") {
+							remove[key] = true
+						} else {
+							parts = append(parts, part)
+						}
+					}
+					if remove[key] && len(parts) > 0 {
+						retained.WriteString(key + ": " + strings.Join(parts, " ") + ";")
+					}
+				}
+				n.Attr[i].Val = filterClipboardStyle(style, remove) + retained.String()
+				changed = changed || n.Attr[i].Val != style
+			}
+		})
+	}
 	var roots []*nethtml.Node
 	var baseline map[string]string
 	ambiguous := false
@@ -78,7 +116,10 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 	}
 	collect(doc.Find("body").Get(0))
 	if len(roots) == 0 || ambiguous {
-		return dom
+		roots = nil
+		if !changed {
+			return dom
+		}
 	}
 	var clean func(*nethtml.Node, map[string]string)
 	clean = func(n *nethtml.Node, inherited map[string]string) {
@@ -114,6 +155,28 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 	}
 	for _, root := range roots {
 		clean(root, nil)
+	}
+	if !documentSource {
+		// 透明背景不生成文本样式；存在祖先背景时保留重置语义，避免被文本样式继承重新着色。
+		doc.Find("[style]").Each(func(_ int, selection *goquery.Selection) {
+			n := selection.Get(0)
+			for i := range n.Attr {
+				if n.Attr[i].Key != "style" {
+					continue
+				}
+				decl := parse.HTMLStyleDeclarations(n.Attr[i].Val)
+				if !clipboardTransparentColor.MatchString(decl["background-color"]) {
+					continue
+				}
+				n.Attr[i].Val = filterClipboardStyle(n.Attr[i].Val, map[string]bool{"background-color": true})
+				for parent := n.Parent; parent != nil; parent = parent.Parent {
+					if parse.HTMLStyleDeclarations(clipboardNodeStyle(parent))["background-color"] != "" {
+						n.Attr[i].Val += "background-color: initial;"
+						break
+					}
+				}
+			}
+		})
 	}
 	ret, err := doc.Find("body").Html()
 	if err != nil {

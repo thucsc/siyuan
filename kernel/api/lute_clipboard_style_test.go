@@ -206,3 +206,69 @@ func TestDocumentClipboardAmbiguousStyles(t *testing.T) {
 		}
 	}
 }
+
+func TestBrowserClipboardLinkAppearance(t *testing.T) {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(githubClipboardFixture(t)))
+	theme, _ := doc.Find("p").First().Attr("style")
+	for _, input := range []string{
+		`<p>before <a href="https://example.com" title="title" style="color:rgb(9,105,218);background-color:rgba(0,0,0,0);text-decoration:underline">link</a> after</p>`,
+		`<a href="https://example.com" title="title" style='` + theme + `text-decoration:underline'>link</a>`,
+		`<p style='` + theme + `'>before <a href="https://example.com" title="title" style="color:rgb(9,105,218);text-decoration-line:underline">link</a> after</p>`,
+	} {
+		output := normalizeBrowserClipboardStyle(input, false)
+		lute := util.NewLute()
+		lute.SetHTMLTag2TextMark(true)
+		blockDOM := lute.HTML2BlockDOM(output)
+		if !strings.Contains(blockDOM, `data-type="a"`) || !strings.Contains(blockDOM, `data-href="https://example.com"`) || !strings.Contains(blockDOM, `data-title="title"`) {
+			t.Errorf("link semantics lost: %s", blockDOM)
+		}
+		for _, unexpected := range []string{"color:", "font-family:", "font-size:", `data-type="a u"`} {
+			if strings.Contains(blockDOM, unexpected) {
+				t.Errorf("link appearance survived %q: %s", unexpected, blockDOM)
+			}
+		}
+		if again := normalizeBrowserClipboardStyle(output, false); again != output {
+			t.Fatal("link cleanup is not idempotent")
+		}
+	}
+}
+
+func TestBrowserClipboardLinkExplicitContent(t *testing.T) {
+	input := `<a href="https://example.com" style="color:blue;text-decoration:underline line-through"><strong>bold</strong><u>underline</u><span style="color:red;background:yellow;font-size:20px;font-family:serif">styled</span></a>`
+	lute := util.NewLute()
+	lute.SetHTMLTag2TextMark(true)
+	output := lute.HTML2BlockDOM(normalizeBrowserClipboardStyle(input, false))
+	for _, want := range []string{"strong", "u", "s", "color: red", "background-color: yellow", "font-size: 20.000000px", "font-family: serif"} {
+		if !strings.Contains(output, want) {
+			t.Errorf("missing %s: %s", want, output)
+		}
+	}
+	for _, input := range []string{input, `<div data-lark-html-role="root">` + input + `</div>`, `<p class=MsoNormal>` + input + `</p>`} {
+		if output := normalizeBrowserClipboardStyle(input, true); output != input {
+			t.Errorf("document link changed: %s", output)
+		}
+	}
+}
+
+func TestBrowserClipboardTransparentBackground(t *testing.T) {
+	for _, color := range []string{"transparent", "rgba(0, 0, 0, 0)", "rgb(0 0 0 / 0%)", "#1230", "#12345600"} {
+		input := `<span style="background-color:` + color + `">plain</span>`
+		output := normalizeBrowserClipboardStyle(input, false)
+		if strings.Contains(output, "background-color") {
+			t.Error(output)
+		}
+	}
+	for _, color := range []string{"#abcd00", "rgba(0,0,0,0.5)", "yellow"} {
+		input := `<span style="background-color:` + color + `">highlight</span>`
+		if output := normalizeBrowserClipboardStyle(input, false); output != input {
+			t.Errorf("visible background changed: %s", output)
+		}
+	}
+	input := `<div style="background-color:yellow"><span style="background-color:rgba(0,0,0,0)">plain</span></div>`
+	lute := util.NewLute()
+	lute.SetHTMLTag2TextMark(true)
+	output := lute.HTML2BlockDOM(normalizeBrowserClipboardStyle(input, false))
+	if strings.Contains(output, "background-color:") {
+		t.Errorf("transparent text inherited a background: %s", output)
+	}
+}
