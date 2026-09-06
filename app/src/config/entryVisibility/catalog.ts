@@ -221,6 +221,7 @@ const gutterTurnInto = (multi: boolean) => node("turnInto", lang("turnInto"), tr
         node("list", lang("list")),
         node("orderedList", lang("ordered-list")),
         node("check", lang("check")),
+        ...(!multi ? [node("superBlock", lang("superBlock"))] : []),
         node("code", lang("code")),
         node("table", lang("table")),
         node("line", lang("line")),
@@ -362,6 +363,11 @@ const gutterSingle = () => [
         separator("separator_numbering"),
         node("prependListItem", lang("prependListItem")),
         node("appendListItem", lang("appendListItem")),
+    ]),
+    separator("separator_tabs"),
+    node("tabs", lang("tabs"), true, [
+        node("tabsPositionTop", lang("tabsPositionTop")),
+        node("tabsPositionLeft", lang("tabsPositionLeft")),
     ]),
     separator("separator_cancelSuperBlock"),
     node("superBlock", lang("superBlock"), true, [
