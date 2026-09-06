@@ -152,7 +152,7 @@ import {
     getTypeByCellElement,
     updateCellsValue
 } from "../render/av/cell";
-import {getAVSelectedCells} from "../render/av/selectionState";
+import {getAVSelectedCells, getAVSelectionRoot} from "../render/av/selectionState";
 import {openEmojiPanel, unicode2Emoji} from "../../emoji";
 import {getIconValueKind} from "../../emoji/iconValue";
 import {escapeAttr, escapeHtml} from "../../util/escape";
@@ -1179,6 +1179,7 @@ export class WYSIWYG {
             const galleryItemElement = hasClosestByClassName(target, "av__gallery-item");
             const rowElement = hasClosestByClassName(target, "av__row");
             const avCellElement = hasClosestByClassName(target, "av__cell");
+            const avElement = getAVSelectionRoot(target);
             const wysiwygRect = protyle.wysiwyg.element.getBoundingClientRect();
             const wysiwygStyle = window.getComputedStyle(protyle.wysiwyg.element);
             const contentBounds = getBlockDragSelectContentBounds(wysiwygRect.left, wysiwygRect.right,
@@ -1199,10 +1200,12 @@ export class WYSIWYG {
             const openListItemAttrByShift = shouldOpenListItemAttr(event.shiftKey, protyle.disabled,
                 hasClosestByClassName(target, "protyle-action"));
             if (event.shiftKey && !openListItemAttrByShift) {
-                if (!isMobile() && !protyle.disabled && nodeElement?.dataset.avType === "table" &&
+                if (!isMobile() && !protyle.disabled && avElement?.dataset.avType === "table" &&
                     avCellElement && avCellElement.dataset.id &&
-                    selectAVCellRange(nodeElement, avCellElement)) {
-                    focusBlock(nodeElement);
+                    selectAVCellRange(avElement, avCellElement)) {
+                    if (nodeElement) {
+                        focusBlock(nodeElement);
+                    }
                     this.preventClick = true;
                     event.preventDefault();
                     event.stopPropagation();
@@ -1210,8 +1213,10 @@ export class WYSIWYG {
                 }
                 const itemElement = galleryItemElement ||
                     (rowElement && !rowElement.classList.contains("av__row--header") ? rowElement : false);
-                if (!hasSelectClassElement && itemElement && selectAVItemRange(nodeElement, itemElement)) {
-                    focusBlock(nodeElement);
+                if (!hasSelectClassElement && avElement && itemElement && selectAVItemRange(avElement, itemElement)) {
+                    if (nodeElement) {
+                        focusBlock(nodeElement);
+                    }
                     this.preventClick = true;
                     event.preventDefault();
                     event.stopPropagation();
@@ -1243,10 +1248,14 @@ export class WYSIWYG {
                                 galleryItemElement.classList.toggle("av__gallery-item--select"));
                         }
                         updateHeader(galleryItemElement);
-                        setAVItemAnchor(nodeElement, galleryItemElement as HTMLElement);
+                        if (avElement) {
+                            setAVItemAnchor(avElement, galleryItemElement as HTMLElement);
+                        }
                     } else if (rowElement) {
                         selectRow(rowElement.querySelector(".av__firstcol"), "toggle");
-                        setAVItemAnchor(nodeElement, rowElement as HTMLElement);
+                        if (avElement) {
+                            setAVItemAnchor(avElement, rowElement as HTMLElement);
+                        }
                     }
                 } else if (ctrlElement) {
                     clearSelect(["img", "row", "galleryItem"], this.element);
@@ -1262,7 +1271,8 @@ export class WYSIWYG {
             }
 
             // https://github.com/siyuan-note/siyuan/issues/15100
-            if (galleryItemElement && !hasClosestByAttribute(target, "data-type", "av-gallery-more")) {
+            if (galleryItemElement && avElement &&
+                !hasClosestByAttribute(target, "data-type", "av-gallery-more")) {
                 documentSelf.onmouseup = () => {
                     documentSelf.onmousemove = null;
                     documentSelf.onmouseup = null;
@@ -1270,7 +1280,7 @@ export class WYSIWYG {
                     documentSelf.onselectstart = null;
                     documentSelf.onselect = null;
                     clearSelect(["galleryItem"], protyle.wysiwyg.element);
-                    setAVItemAnchor(nodeElement, galleryItemElement as HTMLElement);
+                    setAVItemAnchor(avElement, galleryItemElement as HTMLElement);
                     return false;
                 };
                 return;
