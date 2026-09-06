@@ -361,6 +361,10 @@ func TestBlockPublishAccessGuards(t *testing.T) {
 		if response["code"].(float64) != 0 || response["data"].(map[string]any)[missingID] != false {
 			t.Fatalf("missing blocks should report false without an API error: %v", response)
 		}
+		response = blockGuardRequest(model.RoleAdministrator, `{"ids":["`+missingID+`"]}`, getBlocksWordCount)
+		if response["code"].(float64) != 0 || response["data"].(map[string]any)["stat"].(map[string]any)["blockCount"].(float64) != 0 {
+			t.Fatalf("missing blocks should be ignored by word count without an API error: %v", response)
+		}
 	})
 }
 

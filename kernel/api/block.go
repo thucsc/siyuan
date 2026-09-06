@@ -806,7 +806,7 @@ func getBlocksWordCount(c *gin.Context) {
 		ids = append(ids, id.(string))
 	}
 	boxID := encryptedNotebookFromArg(arg)
-	if !holdBlockRequest(c, ret, boxID, arg) {
+	if !holdBlockRequest(c, ret, boxID, arg, true) {
 		return
 	}
 	ids = filterBlockIDsByPublishAccess(c, ids, boxID)
