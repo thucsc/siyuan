@@ -369,6 +369,14 @@ func TestBlockPublishAccessGuards(t *testing.T) {
 		if response["code"].(float64) != 0 || response["data"].(float64) != 0 {
 			t.Fatalf("missing block should report a zero index without an API error: %v", response)
 		}
+		response = blockGuardRequest(model.RoleAdministrator, `{"id":"`+missingID+`"}`, getBlockBreadcrumb)
+		if response["code"].(float64) == 0 {
+			t.Fatalf("missing block without a notebook should be rejected: %v", response)
+		}
+		response = blockGuardRequest(model.RoleAdministrator, `{"id":"`+missingID+`","notebook":"`+boxID+`"}`, getBlockBreadcrumb)
+		if response["code"].(float64) != 0 || len(response["data"].([]any)) != 0 {
+			t.Fatalf("missing block in an explicit notebook should report an empty breadcrumb without an API error: %v", response)
+		}
 	})
 }
 

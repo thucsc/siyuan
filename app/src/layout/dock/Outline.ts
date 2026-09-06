@@ -621,7 +621,7 @@ export class Outline extends Model {
                     excludeTypes: []
                 };
                 const notebookId = this.getNotebookId();
-                if (isEncryptedBox(notebookId)) {
+                if (notebookId) {
                     breadcrumbParam.notebook = notebookId;
                 }
                 fetchPost("/api/block/getBlockBreadcrumb", breadcrumbParam, (response) => {

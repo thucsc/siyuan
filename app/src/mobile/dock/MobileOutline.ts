@@ -467,7 +467,7 @@ export class MobileOutline extends Model {
                     excludeTypes: []
                 };
                 const mobileProtyle = window.siyuan.mobile.editor?.protyle;
-                if (mobileProtyle && mobileProtyle.block.rootID === this.blockId && isEncryptedBox(mobileProtyle.notebookId)) {
+                if (mobileProtyle && mobileProtyle.block.rootID === this.blockId) {
                     breadcrumbParam.notebook = mobileProtyle.notebookId;
                 }
                 fetchPost("/api/block/getBlockBreadcrumb", breadcrumbParam, (response) => {

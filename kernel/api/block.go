@@ -1038,7 +1038,7 @@ func getBlockBreadcrumb(c *gin.Context) {
 		}
 	}
 
-	boxID := encryptedNotebookFromArg(arg)
+	boxID, _ := arg["notebook"].(string)
 	if !holdBlockRequest(c, ret, boxID, arg) {
 		return
 	}
