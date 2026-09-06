@@ -27,13 +27,10 @@ import (
 var clipboardThemeProperties = []string{"color", "background-color", "font-family", "font-size"}
 
 // normalizeBrowserClipboardStyle 移除浏览器复制正文时附带的共同主题样式，保留局部格式差异。
-func normalizeBrowserClipboardStyle(dom string) string {
+func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 	lower := strings.ToLower(dom)
-	// 文档编辑器的样式由作者指定，不按网页正文的主题基准清理。
-	for _, marker := range []string{"mso-", "class=\"mso", "urn:schemas-microsoft-com:office", "data-lark", "data-type="} {
-		if strings.Contains(lower, marker) {
-			return dom
-		}
+	if strings.Contains(lower, "data-type=") {
+		return dom
 	}
 	if !strings.Contains(lower, "-webkit-text-stroke-width") {
 		return dom
@@ -42,6 +39,11 @@ func normalizeBrowserClipboardStyle(dom string) string {
 	if err != nil {
 		return dom
 	}
+	doc.Find("*").Each(func(_ int, selection *goquery.Selection) {
+		if isClipboardDocumentBoundary(selection.Get(0)) {
+			documentSource = true
+		}
+	})
 	var roots []*nethtml.Node
 	var baseline map[string]string
 	ambiguous := false
@@ -51,7 +53,7 @@ func normalizeBrowserClipboardStyle(dom string) string {
 			switch n.Data {
 			case "p", "div", "span", "body":
 				decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(n))
-				if isBrowserClipboardTheme(decl) {
+				if isBrowserClipboardTheme(decl) && (!documentSource || isClipboardDocumentThemeWrapper(n)) {
 					if baseline == nil {
 						baseline = decl
 					} else {
@@ -64,6 +66,10 @@ func normalizeBrowserClipboardStyle(dom string) string {
 					roots = append(roots, n)
 					return
 				}
+			}
+			// 文档正文内部的统一字体、字号也可能是作者主动设置，不能用重复次数推断默认格式。
+			if documentSource && isClipboardDocumentBoundary(n) {
+				return
 			}
 		}
 		for child := n.FirstChild; child != nil; child = child.NextSibling {
@@ -98,6 +104,10 @@ func normalizeBrowserClipboardStyle(dom string) string {
 				n.Attr[i].Val = filterClipboardStyle(n.Attr[i].Val, remove) + resets.String()
 			}
 		}
+		// 文档来源只清理外层浏览器包装；即使子元素与主题同色，也保留其显式格式。
+		if documentSource {
+			return
+		}
 		for child := n.FirstChild; child != nil; child = child.NextSibling {
 			clean(child, effective)
 		}
@@ -110,6 +120,57 @@ func normalizeBrowserClipboardStyle(dom string) string {
 		return dom
 	}
 	return ret
+}
+
+func isClipboardDocumentBoundary(n *nethtml.Node) bool {
+	for _, attr := range n.Attr {
+		key, value := strings.ToLower(attr.Key), strings.ToLower(attr.Val)
+		if strings.HasPrefix(key, "data-lark") || strings.Contains(value, "urn:schemas-microsoft-com:office") {
+			return true
+		}
+		if key == "style" && strings.Contains(value, "mso-") {
+			return true
+		}
+		if key == "class" {
+			for _, class := range strings.Fields(value) {
+				if strings.HasPrefix(class, "mso") {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func isClipboardDocumentThemeWrapper(n *nethtml.Node) bool {
+	if n.Data != "div" && n.Data != "body" {
+		return false
+	}
+	if isClipboardDocumentBoundary(n) {
+		// 飞书仅允许根容器参与浏览器样式识别；正文节点和 Office 样式节点不作为主题基准。
+		larkRoot := false
+		for _, attr := range n.Attr {
+			if attr.Key == "data-lark-html-role" && attr.Val == "root" {
+				larkRoot = true
+			}
+			if attr.Key == "style" && strings.Contains(strings.ToLower(attr.Val), "mso-") {
+				return false
+			}
+		}
+		if !larkRoot {
+			return false
+		}
+	}
+	hasContent := false
+	for child := n.FirstChild; child != nil; child = child.NextSibling {
+		if child.Type == nethtml.TextNode && strings.TrimSpace(child.Data) != "" {
+			return false
+		}
+		if child.Type == nethtml.ElementNode {
+			hasContent = true
+		}
+	}
+	return hasContent
 }
 
 func clipboardNodeStyle(n *nethtml.Node) string {

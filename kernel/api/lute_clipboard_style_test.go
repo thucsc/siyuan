@@ -38,7 +38,7 @@ func githubClipboardFixture(t *testing.T) string {
 
 func TestBrowserClipboardTheme(t *testing.T) {
 	input := render.Sanitize(githubClipboardFixture(t))
-	output := normalizeBrowserClipboardStyle(input)
+	output := normalizeBrowserClipboardStyle(input, false)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(output))
 	doc.Find("p").Each(func(_ int, p *goquery.Selection) {
 		style, _ := p.Attr("style")
@@ -58,7 +58,7 @@ func TestBrowserClipboardTheme(t *testing.T) {
 	if !strings.Contains(blockDOM, "感谢分享经验") || !strings.Contains(blockDOM, "欢迎提供") {
 		t.Fatalf("content lost: %s", blockDOM)
 	}
-	if again := normalizeBrowserClipboardStyle(output); again != output {
+	if again := normalizeBrowserClipboardStyle(output, false); again != output {
 		t.Fatal("normalization is not idempotent")
 	}
 }
@@ -69,7 +69,7 @@ func TestBrowserClipboardLocalStyles(t *testing.T) {
 	input := `<div style='` + style + `'>plain <strong>bold</strong><em>italic</em><a href="https://example.com">link</a>` +
 		`<span style="color: red; background: yellow; font-family: serif; font-size: 20px">highlight` +
 		`<span style="color: rgb(240, 246, 252)">reset</span></span><small>small</small><code>code</code></div>`
-	output := normalizeBrowserClipboardStyle(input)
+	output := normalizeBrowserClipboardStyle(input, false)
 	lute := util.NewLute()
 	lute.SetHTMLTag2TextMark(true)
 	blockDOM := lute.HTML2BlockDOM(output)
@@ -94,7 +94,7 @@ func TestBrowserClipboardThemeVariants(t *testing.T) {
 				baseline = strings.ReplaceAll(baseline, "rgb(13, 17, 23)", "rgb(255, 255, 255)")
 			}
 			input := "<" + tag + " style='" + baseline + "'>plain<span style='" + baseline + "'>repeated</span></" + tag + ">"
-			output := normalizeBrowserClipboardStyle(input)
+			output := normalizeBrowserClipboardStyle(input, false)
 			lute := util.NewLute()
 			lute.SetHTMLTag2TextMark(true)
 			blockDOM := lute.HTML2BlockDOM(output)
@@ -114,7 +114,7 @@ func TestBrowserClipboardPreservesExplicitStyles(t *testing.T) {
 		`<div data-type="NodeParagraph">` + fixture + `</div>`,
 		strings.Replace(fixture, "rgb(240, 246, 252)", "red", 1),
 	} {
-		if output := normalizeBrowserClipboardStyle(input); output != input {
+		if output := normalizeBrowserClipboardStyle(input, false); output != input {
 			t.Errorf("explicit or ambiguous formatting changed: %s", output)
 		}
 	}
@@ -145,5 +145,64 @@ func TestFilterClipboardStyle(t *testing.T) {
 	output := filterClipboardStyle(input, map[string]bool{"color": true})
 	if strings.Contains(output, "color:") || !strings.Contains(output, `font-family: "a;b";`) || !strings.Contains(output, `background-image: url("a;b");`) || !strings.Contains(output, "margin: 0 !important;") {
 		t.Fatal(output)
+	}
+}
+
+func TestDocumentClipboardThemeWrapper(t *testing.T) {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(githubClipboardFixture(t)))
+	theme, _ := doc.Find("p").First().Attr("style")
+	noMath := func(string, string, string) (string, bool) { return "", false }
+	noOffice := func(string) (string, bool) { return "", false }
+	for _, tc := range []struct {
+		name, root, content, office, officeHTML, wps string
+	}{
+		{"wps", "", `<p class=MsoNormal><span style="font-family:宋体;font-size:12pt">正文</span><u><span style="color:red;background:yellow">强调</span></u></p>`, "", "", "wps"},
+		{"office", "", `<p class='MsoNormal'><span style="font-family:Calibri;font-size:11pt">正文</span><strong>强调</strong></p>`, "office", "", ""},
+		{"officeHTML", "", `<p><span style="font-family:Calibri;font-size:11pt">正文</span></p>`, "", "officeHTML", ""},
+		{"feishu", `data-lark-html-role="root"`, `<div>正文<span style="color:red;background-color:yellow">强调</span></div>`, "", "", ""},
+		{"officeDetected", "", `<p class='MsoNormal'><span style="font-family:Calibri;font-size:11pt">正文</span></p>`, "", "", ""},
+		{"sameAsTheme", `data-lark-html-role="root"`, `<p><span style='` + theme + `'>显式格式</span></p>`, "", "", ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			input := `<div id="wrapper" ` + tc.root + ` style='` + theme + `'>` + tc.content + `</div>`
+			output, useHTML := prepareHTMLClipboardContent(util.NewLute(), input, "", "", tc.office, tc.officeHTML, tc.wps, false, noMath, noOffice)
+			if !useHTML {
+				t.Fatal("HTML conversion was skipped")
+			}
+			actual, _ := goquery.NewDocumentFromReader(strings.NewReader(output))
+			wrapper := actual.Find("#wrapper")
+			style, _ := wrapper.Attr("style")
+			decl := parse.HTMLStyleDeclarations(style)
+			for _, key := range clipboardThemeProperties {
+				if decl[key] != "" {
+					t.Errorf("wrapper retained %s: %s", key, output)
+				}
+			}
+			before, _ := goquery.NewDocumentFromReader(strings.NewReader(input))
+			want, _ := before.Find("#wrapper").Html()
+			got, _ := wrapper.Html()
+			if got != want {
+				t.Errorf("explicit content formatting changed:\nwant %s\ngot %s", want, got)
+			}
+			if again := normalizeBrowserClipboardStyle(output, tc.office != "" || tc.officeHTML != "" || tc.wps != ""); again != output {
+				t.Fatal("document normalization is not idempotent")
+			}
+		})
+	}
+}
+
+func TestDocumentClipboardAmbiguousStyles(t *testing.T) {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(githubClipboardFixture(t)))
+	theme, _ := doc.Find("p").First().Attr("style")
+	for _, input := range []string{
+		`<div style='` + theme + `'>direct text</div>`,
+		`<div class='MsoNormal' style='` + theme + `'><span>text</span></div>`,
+		`<div style='` + theme + `mso-style-name:Normal'><span>text</span></div>`,
+		`<div data-lark-html-role="paragraph" style='` + theme + `'><span>text</span></div>`,
+		`<div><span style="font-family:宋体;font-size:12pt">text</span></div>`,
+	} {
+		if output := normalizeBrowserClipboardStyle(input, true); output != input {
+			t.Errorf("ambiguous document style changed: %s", output)
+		}
 	}
 }
