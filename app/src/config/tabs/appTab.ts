@@ -24,6 +24,7 @@ import {afterExport} from "../../protyle/export/util";
 import {genConfigItemMainHtml, genConfigItemName} from "../render/fragments";
 import {sendAppSetting} from "./appRuntime";
 import {getHostCapabilities} from "../../util/hostCapabilities";
+import {fitSelectWidthToOptions} from "../../util/select";
 
 /// #if MOBILE
 const registerAppWorkspaceGroup = (tab: SettingTabBuilder) => {
@@ -258,15 +259,7 @@ const mountNetworkProxy = (root: HTMLElement) => {
     const schemeElement = root.querySelector("#networkProxyScheme") as HTMLSelectElement;
     const hostElement = root.querySelector("#networkProxyHost") as HTMLInputElement;
     const portElement = root.querySelector("#networkProxyPort") as HTMLInputElement;
-    const schemeStyle = getComputedStyle(schemeElement);
-    const measureContext = document.createElement("canvas").getContext("2d");
-    if (measureContext) {
-        measureContext.font = schemeStyle.font;
-        const optionWidth = Array.from(schemeElement.options).reduce((width, option) =>
-            Math.max(width, measureContext.measureText(option.text).width), 0);
-        const paddingWidth = Number.parseFloat(schemeStyle.paddingLeft) + Number.parseFloat(schemeStyle.paddingRight);
-        schemeElement.style.minWidth = `${Math.ceil(optionWidth + paddingWidth)}px`;
-    }
+    fitSelectWidthToOptions(schemeElement);
     const updateInputs = () => {
         const disabled = schemeElement.value === "" || schemeElement.value === "system";
         hostElement.disabled = disabled;
