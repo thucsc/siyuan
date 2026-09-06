@@ -4,6 +4,14 @@
     padding: 0;
     margin: 4px 0;
     position: relative;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius-b);
+
+    &.protyle-wysiwyg--select::after,
+    &.protyle-wysiwyg--select-mode::after,
+    &.protyle-wysiwyg--hl::after {
+      border-radius: inherit;
+    }
   }
 
   .tabs-header {
@@ -110,6 +118,12 @@
 
   .tabs-tab--editing > .tabs-tab-label {
     visibility: hidden;
+  }
+
+  .tabs[data-tabs-orientation="horizontal"] > .tabs-header > .tabs-list > .tabs-tab--editing {
+    width: 186px;
+    max-width: 100%;
+    justify-content: flex-start;
   }
 
   .tabs-title-editor {

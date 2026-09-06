@@ -284,6 +284,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                 }
                 const list = header.querySelector<HTMLElement>(".tabs-list");
                 list.setAttribute("aria-orientation", vertical ? "vertical" : "horizontal");
+                let editingButton: HTMLElement;
                 items.forEach((item, index) => {
                     if (readonly) {
                         item.dataset.tabsEditing = "false";
@@ -312,6 +313,9 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                         title.setAttribute("contenteditable", "true");
                     }
                     const editing = !readonly && selected && item.dataset.tabsEditing === "true";
+                    if (editing && !button.classList.contains("tabs-tab--editing")) {
+                        editingButton = button;
+                    }
                     button.classList.toggle("tabs-tab--editing", editing);
                     button.draggable = !readonly && !editing && !!controller.options.move;
                     const info = item.querySelector<HTMLElement>(":scope > .tab-item-info");
@@ -323,6 +327,13 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     }
                 });
                 tabs.setAttribute("data-tabs-ready", "true");
+                if (editingButton && !vertical) {
+                    // 展开编辑标签后滚动到完整可见的位置，避免右侧页签的输入区域被裁切。
+                    const listRect = list.getBoundingClientRect();
+                    const rect = editingButton.getBoundingClientRect();
+                    list.scrollLeft += rect.left < listRect.left ? rect.left - listRect.left :
+                        Math.max(0, rect.right - listRect.right);
+                }
                 items.forEach((item, index) => {
                     const info = item.querySelector<HTMLElement>(":scope > .tabs-title-editor");
                     if (!info) {

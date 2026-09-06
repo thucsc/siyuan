@@ -3882,7 +3882,8 @@ data-type="fold"${viewOccurrenceID ? ` data-view-occurrence-id="${encodeURICompo
             rect = nodeElement.getBoundingClientRect();
             space = 0;
         }
-        let horizontalAnchorLeft = rect.left;
+        // 页签栏只用于垂直定位；水平方向和其他块一样以整个块的外边界为基准。
+        let horizontalAnchorLeft = tabsHeader ? tabsHeader.parentElement.getBoundingClientRect().left : rect.left;
         if (listItem && element.classList.contains("protyle-action") &&
             element.parentElement.getAttribute("data-type") === "NodeListItem") {
             const listItemElement = element.parentElement;
@@ -3891,6 +3892,8 @@ data-type="fold"${viewOccurrenceID ? ` data-view-occurrence-id="${encodeURICompo
             horizontalAnchorLeft = getListGutterAnchorLeft(rect.left, contentLeft, isRTL);
         }
         const buttonCount = html.split("</button>").length - 1;
+        // 所有块标与内容统一留出间距，并在判断是否压缩时计入这段空间。
+        const gutterGap = 4;
         const getNaturalLeft = (width: number) => {
             let left = horizontalAnchorLeft - width - space;
             if (nodeElement.getAttribute("data-type") === "NodeBlockQueryEmbed" && buttonCount === 1) {
@@ -3900,7 +3903,7 @@ data-type="fold"${viewOccurrenceID ? ` data-view-occurrence-id="${encodeURICompo
                 // 为数据库行
                 left = nodeElement.getBoundingClientRect().left - width - space + parseInt(getComputedStyle(nodeElement).paddingLeft);
             }
-            return left;
+            return left - gutterGap;
         };
         let naturalLeft = getNaturalLeft(this.naturalWidth || this.element.clientWidth);
         let compressed = naturalLeft < this.element.parentElement.getBoundingClientRect().left;
@@ -3951,7 +3954,7 @@ data-type="fold"${viewOccurrenceID ? ` data-view-occurrence-id="${encodeURICompo
         const top = Math.max(rect.top + marginHeight, contentTop, foldElement ? foldElement.getBoundingClientRect().top : 0);
         this.element.style.top = `${getFixedGutterPosition(top, fixedContainerRect?.top)}px`;
         // 压缩模式需加 2，否则和折叠标题无法对齐
-        const left = compressed ? horizontalAnchorLeft - this.element.clientWidth - space / 2 + 3 :
+        const left = compressed ? horizontalAnchorLeft - this.element.clientWidth - space / 2 + 3 - gutterGap :
             getNaturalLeft(this.element.clientWidth);
         this.element.style.left = `${getFixedGutterPosition(left, fixedContainerRect?.left)}px`;
     }
