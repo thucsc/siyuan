@@ -15,6 +15,7 @@ import {
 } from "../util/inlineElementMarker";
 import {normalizeHTMLAssetIFrameBlockDOM} from "../../asset/html";
 import {destroyTabsRender, tabsRender} from "../render/tabsRender";
+import {genTemplateDocTreePlanHTML} from "../../template/docTree";
 
 const templatePreviewRequests = new WeakMap<Element, object>();
 
@@ -46,6 +47,10 @@ export const previewTemplate = (pathString: string, element: Element, parentId: 
         }
         const content = normalizeHTMLAssetIFrameBlockDOM(response.data.content.replace(/contenteditable="true"/g, ""));
         element.innerHTML = `<div class="protyle-wysiwyg" style="padding: 8px">${content}</div>`;
+        if (response.data.docTreePlan?.nodes?.length) {
+            element.insertAdjacentHTML("beforeend", genTemplateDocTreePlanHTML(response.data.docTreePlan,
+                window.siyuan.languages.newSubDoc));
+        }
         tabsRender(element.firstElementChild, {label: window.siyuan.languages.tabItem});
     });
 };

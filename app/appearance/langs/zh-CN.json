@@ -1,4 +1,5 @@
 {
+	"templatePackageMoveTip": "模板包文件夹不支持重命名或移动",
 	"avDragRemoveSorts": "此次拖拽与当前排序规则冲突。是否移除此视图的排序规则，并将拖拽后的完整顺序保存为自定义顺序？",
 	"templateManager": "模板管理",
 	"templateSource": "模板源码",

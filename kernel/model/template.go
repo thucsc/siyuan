@@ -313,17 +313,11 @@ func DocSaveAsTemplateInDirectory(id, name, directory string, overwrite bool, da
 			if lang := string(n.CodeBlockInfo); "siyuan-template" == lang || "template" == lang {
 				if n.Parent.Parent == tree.Root {
 					if attrs := templateDocumentAttributes(n.Next.Tokens); len(attrs) > 0 {
-						for _, attr := range attrs {
-							if attr[0] == "id" || attr[0] == "updated" {
-								continue
-							}
-							tree.Root.RemoveIALAttr(attr[0])
-							tree.Root.KramdownIAL = append(tree.Root.KramdownIAL, attr)
-						}
+						n.CodeBlockInfo = []byte(templateDocumentAttributeMarker)
+						n.Parent.KramdownIAL = nil
 						if next := n.Parent.Next; next != nil && next.Type == ast.NodeKramdownBlockIAL {
 							unlinks = append(unlinks, next)
 						}
-						unlinks = append(unlinks, n.Parent)
 						return ast.WalkContinue
 					}
 				}
@@ -838,11 +832,9 @@ func renderTemplateSource(p, id string, mode TemplateRenderMode, content *string
 	}
 	collector.totalOutput = buf.Len()
 	md = buf.Bytes()
-	tree = parseKTree(md)
-	if nil == tree {
-		msg := fmt.Sprintf("parse tree [%s] failed", p)
-		logging.LogError(msg)
-		err = errors.New(msg)
+	tree, err = parseTemplateKTree(md)
+	if err != nil {
+		logging.LogErrorf("parse template [%s] failed: %s", p, err)
 		return
 	}
 	tree.Box = sourceTree.Box

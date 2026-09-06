@@ -18,13 +18,63 @@ package model
 
 import (
 	"bytes"
+	"errors"
 	"strings"
 
 	"github.com/88250/lute/ast"
 	"github.com/88250/lute/parse"
 )
 
-// 独立模板代码块中的文档属性合并到导出文档末尾，保留动作源码中的引号。
+const templateDocumentAttributeMarker = "siyuan-template-doc-attrs-v1"
+
+func parseTemplateKTree(markdown []byte) (*parse.Tree, error) {
+	engine := NewLute()
+	tree := parse.Parse("", markdown, engine.ParseOptions)
+	if tree == nil {
+		return nil, errors.New("parse template tree failed")
+	}
+	normalizeTree(tree)
+	if err := applyTemplateDocumentAttributes(tree); err != nil {
+		return nil, err
+	}
+	return tree, nil
+}
+
+// 独立文档属性保留在原位置求值，渲染完成后再合并到根节点。
+func applyTemplateDocumentAttributes(tree *parse.Tree) error {
+	for node := tree.Root.FirstChild; node != nil; {
+		next := node.Next
+		info := node.ChildByType(ast.NodeCodeBlockFenceInfoMarker)
+		if node.Type == ast.NodeCodeBlock && info != nil && string(info.CodeBlockInfo) == templateDocumentAttributeMarker {
+			code := node.ChildByType(ast.NodeCodeBlockCode)
+			if code == nil {
+				return errors.New("invalid template document attributes")
+			}
+			source := strings.TrimSpace(string(code.Tokens))
+			attrs := parseTemplateDocumentAttributes(source)
+			if len(attrs) == 0 {
+				return errors.New("invalid template document attributes")
+			}
+			for _, attr := range attrs {
+				if attr[0] == "id" || attr[0] == "updated" {
+					continue
+				}
+				tree.Root.RemoveIALAttr(attr[0])
+				tree.Root.KramdownIAL = append(tree.Root.KramdownIAL, attr)
+			}
+			if next != nil && next.Type == ast.NodeKramdownBlockIAL && parse.IAL2Map(parse.Tokens2IAL(next.Tokens))["type"] != "doc" {
+				ial := next
+				next = next.Next
+				ial.Unlink()
+			}
+			node.Unlink()
+		}
+		node = next
+	}
+	return nil
+}
+
+// 识别独立模板代码块中的文档属性，保留动作源码中的引号。
 func templateDocumentAttributes(source []byte) [][]string {
 	text := strings.TrimSpace(string(source))
 	if !strings.HasPrefix(text, "{:") || !strings.HasSuffix(text, "}") {
@@ -82,7 +132,21 @@ func templateDocumentAttributes(source []byte) [][]string {
 		masked.WriteString(prefix + strings.Repeat("x", len(actions)))
 		text = text[end+1:]
 	}
-	remaining := []byte(strings.TrimSuffix(strings.TrimPrefix(masked.String(), "{:"), "}"))
+	attrs := parseTemplateDocumentAttributes(masked.String())
+	for _, attr := range attrs {
+		// 长占位符优先替换，避免前缀相同的动作相互覆盖。
+		for i := len(actions) - 1; i >= 0; i-- {
+			attr[1] = strings.ReplaceAll(attr[1], prefix+strings.Repeat("x", i+1), actions[i])
+		}
+	}
+	return attrs
+}
+
+func parseTemplateDocumentAttributes(text string) [][]string {
+	if !strings.HasPrefix(text, "{:") || !strings.HasSuffix(text, "}") {
+		return nil
+	}
+	remaining := []byte(strings.TrimSuffix(strings.TrimPrefix(text, "{:"), "}"))
 	var attrs [][]string
 	isDoc := false
 	for len(bytes.TrimSpace(remaining)) > 0 {
@@ -94,12 +158,7 @@ func templateDocumentAttributes(source []byte) [][]string {
 		if string(name) == "type" && string(value) == "doc" {
 			isDoc = true
 		}
-		val := string(value)
-		// 长占位符优先替换，避免前缀相同的动作相互覆盖。
-		for i := len(actions) - 1; i >= 0; i-- {
-			val = strings.ReplaceAll(val, prefix+strings.Repeat("x", i+1), actions[i])
-		}
-		attrs = append(attrs, []string{string(name), val})
+		attrs = append(attrs, []string{string(name), string(value)})
 	}
 	if !isDoc {
 		return nil

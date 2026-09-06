@@ -1,4 +1,5 @@
 {
+	"templatePackageMoveTip": "Les dossiers de paquets de modèles ne peuvent pas être renommés ni déplacés",
 	"avDragRemoveSorts": "Ce déplacement est incompatible avec les règles de tri actuelles. Supprimer les règles de tri de cette vue et enregistrer l’ordre complet après le déplacement comme ordre personnalisé ?",
 	"templateManager": "Gestionnaire de modèles",
 	"templateSource": "Source du modèle",

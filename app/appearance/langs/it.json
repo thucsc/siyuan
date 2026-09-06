@@ -1,4 +1,5 @@
 {
+	"templatePackageMoveTip": "Le cartelle dei pacchetti di modelli non possono essere rinominate o spostate",
 	"avDragRemoveSorts": "Questo spostamento è in conflitto con le regole di ordinamento attuali. Rimuovere le regole di ordinamento di questa vista e salvare l’ordine completo dopo il trascinamento come ordine personalizzato?",
 	"templateManager": "Gestione modelli",
 	"templateSource": "Sorgente del modello",

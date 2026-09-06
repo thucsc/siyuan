@@ -8,6 +8,7 @@ import {clearTemplatePreview, previewTemplate} from "../protyle/toolbar/util";
 interface TemplateEntry {
     path: string;
     isDir: boolean;
+    isPackage?: boolean;
 }
 
 export const loadTemplateDirectories = async (select: HTMLSelectElement) => {
@@ -97,8 +98,11 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
         source.disabled = busy || !selected || selected.isDir;
         dialog.element.querySelectorAll<HTMLButtonElement>(".template-manager__actions > [data-action]").forEach(element => {
             const action = element.dataset.action;
+            const packageMove = selected?.isPackage && ["rename", "move"].includes(action);
+            element.title = packageMove ? lang.templatePackageMoveTip : "";
             element.disabled = busy || (["save", "preview"].includes(action) && (!selected || selected.isDir)) ||
                 (action === "save" && !dirty()) ||
+                packageMove ||
                 (["rename", "move", "remove"].includes(action) && !selected);
         });
     };

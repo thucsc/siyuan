@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/88250/lute/ast"
@@ -46,28 +47,44 @@ type TemplateFileRequest struct {
 }
 
 type TemplateFileEntry struct {
-	Path  string `json:"path"`
-	IsDir bool   `json:"isDir"`
+	Path      string `json:"path"`
+	IsDir     bool   `json:"isDir"`
+	IsPackage bool   `json:"isPackage,omitempty"`
 }
 
-// 模板管理只接受跨平台可用的相对路径，隐藏目录保留给内部恢复文件。
+// 访问已有模板只校验目录边界，不对文件名进行清理或改写。
 func validateTemplateRelativePath(p string, allowRoot bool) error {
 	if p == "" && allowRoot {
 		return nil
 	}
-	if p == "" || !fs.ValidPath(p) || strings.ContainsAny(p, "\\:<>\"|?*\x00") {
+	if p == "" || !fs.ValidPath(p) || strings.ContainsAny(p, "\\:\x00") {
 		return errors.New("invalid template path")
 	}
 	for _, part := range strings.Split(p, "/") {
-		device := strings.ToUpper(strings.SplitN(part, ".", 2)[0])
-		if device == "CON" || device == "PRN" || device == "AUX" || device == "NUL" || (len(device) == 4 && (strings.HasPrefix(device, "COM") || strings.HasPrefix(device, "LPT")) && device[3] >= '1' && device[3] <= '9') {
-			return errors.New("reserved template file name")
-		}
-		if strings.HasPrefix(part, ".") || strings.TrimSpace(part) != part || strings.HasSuffix(part, ".") || util.FilterFileName(part) != part {
-			return errors.New("invalid template path component")
+		if strings.HasPrefix(part, ".") {
+			return errors.New("hidden template paths are reserved")
 		}
 	}
 	return nil
+}
+
+// 新名称保持跨平台可用，已有父目录沿用原名。
+func validateNewTemplateName(p string) error {
+	part := path.Base(p)
+	device := strings.ToUpper(strings.SplitN(part, ".", 2)[0])
+	if device == "CON" || device == "PRN" || device == "AUX" || device == "NUL" || (len(device) == 4 && (strings.HasPrefix(device, "COM") || strings.HasPrefix(device, "LPT")) && device[3] >= '1' && device[3] <= '9') {
+		return errors.New("reserved template file name")
+	}
+	if strings.HasPrefix(part, ".") || strings.TrimSpace(part) != part || strings.HasSuffix(part, ".") || strings.ContainsAny(part, "\\:<>\"|?*") || strings.ContainsFunc(part, unicode.IsControl) {
+		return errors.New("invalid template path component")
+	}
+	return nil
+}
+
+// 清单与目录共同标识模板包，保留目录身份以维持搜索和集市更新。
+func isManagedTemplatePackage(root *os.Root, p string) bool {
+	_, err := root.Lstat(path.Join(p, "template.json"))
+	return err == nil
 }
 
 func openTemplateRoot() (*os.Root, error) {
@@ -213,7 +230,7 @@ func ManageTemplateFiles(request TemplateFileRequest) (ret any, err error) {
 				return nil
 			}
 			if entry.IsDir() || strings.EqualFold(path.Ext(p), ".md") {
-				entries = append(entries, TemplateFileEntry{Path: p, IsDir: entry.IsDir()})
+				entries = append(entries, TemplateFileEntry{Path: p, IsDir: entry.IsDir(), IsPackage: entry.IsDir() && isManagedTemplatePackage(root, p)})
 			}
 			return nil
 		})
@@ -227,6 +244,9 @@ func ManageTemplateFiles(request TemplateFileRequest) (ret any, err error) {
 	defer filelock.Unlock(abs)
 	info, statErr := root.Stat(request.Path)
 	if request.Action == "mkdir" {
+		if err = validateNewTemplateName(request.Path); err != nil {
+			return nil, err
+		}
 		return nil, root.Mkdir(request.Path, 0755)
 	}
 	if statErr != nil && !(request.Action == "write" && request.Revision == "" && errors.Is(statErr, os.ErrNotExist)) {
@@ -256,6 +276,11 @@ func ManageTemplateFiles(request TemplateFileRequest) (ret any, err error) {
 	}
 	switch request.Action {
 	case "write":
+		if info == nil {
+			if err = validateNewTemplateName(request.Path); err != nil {
+				return nil, err
+			}
+		}
 		if len(request.Content) > maxTemplateSourceSize {
 			return nil, errors.New("template source is too large")
 		}
@@ -265,7 +290,13 @@ func ManageTemplateFiles(request TemplateFileRequest) (ret any, err error) {
 		err = writeTemplateSource(root, request.Path, request.Content, info == nil)
 		return map[string]string{"revision": fmt.Sprintf("%x", sha256.Sum256([]byte(request.Content)))}, err
 	case "move":
+		if info.IsDir() && isManagedTemplatePackage(root, request.Path) {
+			return nil, errors.New("template packages cannot be renamed or moved")
+		}
 		if err = checkTemplateFilePath(root, request.Target); err != nil {
+			return nil, err
+		}
+		if err = validateNewTemplateName(request.Target); err != nil {
 			return nil, err
 		}
 		if !info.IsDir() && !strings.EqualFold(path.Ext(request.Target), ".md") {

@@ -155,7 +155,7 @@ func TestExportTemplateDocumentAttributesAndDirectory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Count(string(content), `type="doc"`) != 1 || strings.Contains(string(content), codeID) || !strings.Contains(string(content), "After declaration") {
+	if strings.Count(string(content), templateDocumentAttributeMarker) != 1 || strings.Contains(string(content), codeID) || !strings.Contains(string(content), "After declaration") {
 		t.Fatalf("unexpected exported attributes/content: %s", content)
 	}
 	rendered, _, _, err := RenderTemplateWithMode(p, fixture.sourceID, TemplateRenderModePreview)
@@ -171,5 +171,183 @@ func TestExportTemplateDocumentAttributesAndDirectory(t *testing.T) {
 	}
 	if _, err = DocSaveAsTemplateInDirectory(fixture.sourceID, "week", "../escape", true, TemplateDatabaseModeCopy); err == nil {
 		t.Fatal("export path escaped templates")
+	}
+}
+
+func TestTemplateExistingNames(t *testing.T) {
+	previous := util.DataDir
+	util.DataDir = t.TempDir()
+	t.Cleanup(func() { util.DataDir = previous })
+	root, err := openTemplateRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	if err = root.Mkdir("O'Reilly", 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err = root.WriteFile("O'Reilly/one's.md", []byte("original"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	read, err := ManageTemplateFiles(TemplateFileRequest{Action: "read", Path: "O'Reilly/one's.md"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	saved, err := ManageTemplateFiles(TemplateFileRequest{Action: "write", Path: "O'Reilly/one's.md", Revision: read.(map[string]string)["revision"], Content: "edited"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ManageTemplateFiles(TemplateFileRequest{Action: "move", Path: "O'Reilly/one's.md", Target: "O'Reilly/two's.md", Revision: saved.(map[string]string)["revision"]}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ManageTemplateFiles(TemplateFileRequest{Action: "write", Path: "O'Reilly/new's.md", Content: "new"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ManageTemplateFiles(TemplateFileRequest{Action: "remove", Path: "O'Reilly/two's.md", Revision: saved.(map[string]string)["revision"]}); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"CON.md", "trailing .", "line\nbreak.md", "bad<name.md"} {
+		if _, err := ManageTemplateFiles(TemplateFileRequest{Action: "write", Path: name}); err == nil {
+			t.Errorf("accepted invalid new name %q", name)
+		}
+	}
+}
+
+func TestTemplatePackageIdentity(t *testing.T) {
+	previous, previousConf := util.DataDir, Conf
+	util.DataDir = t.TempDir()
+	Conf = NewAppConf()
+	Conf.Search = conf.NewSearch()
+	t.Cleanup(func() { util.DataDir, Conf = previous, previousConf })
+	root, err := openTemplateRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	if err = root.Mkdir("package-one", 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err = root.WriteFile("package-one/template.json", []byte(`{"name":"package-one"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err = root.WriteFile("package-one/note.md", []byte("template"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	list, err := ManageTemplateFiles(TemplateFileRequest{Action: "list"})
+	if err != nil || !list.([]TemplateFileEntry)[0].IsPackage {
+		t.Fatalf("package not identified: %+v %v", list, err)
+	}
+	read, err := ManageTemplateFiles(TemplateFileRequest{Action: "read", Path: "package-one"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ManageTemplateFiles(TemplateFileRequest{Action: "move", Path: "package-one", Target: "package-two", Revision: read.(map[string]string)["revision"]}); err == nil {
+		t.Fatal("package directory renamed")
+	}
+	if got := SearchTemplate(""); len(got) != 1 {
+		t.Fatalf("package templates disappeared: %+v", got)
+	}
+	read, err = ManageTemplateFiles(TemplateFileRequest{Action: "read", Path: "package-one/note.md"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ManageTemplateFiles(TemplateFileRequest{Action: "write", Path: "package-one/note.md", Revision: read.(map[string]string)["revision"], Content: "edited"}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestExportTemplateDocumentAttributeScope(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		chunks []string
+		want   string
+	}{
+		{"if", []string{`.action{if true}.action{$icon := "conditional"}`, `{: icon=".action{$icon}" type="doc"}`, `.action{end}`}, "conditional"},
+		{"false", []string{`.action{if false}.action{$icon := "conditional"}`, `{: icon=".action{$icon}" type="doc"}`, `.action{end}`}, "default"},
+		{"range", []string{`.action{range list "first" "last"}`, `{: icon=".action{.}" type="doc"}`, `.action{end}`}, "last"},
+		{"snapshot", []string{`.action{$icon := "before"}`, `{: icon=".action{$icon}" type="doc"}`, `.action{$icon = "after"}`}, "before"},
+		{"definition", []string{`.action{define "attrs"}`, `{: icon=".action{.}" type="doc"}`, `.action{end}.action{template "attrs" "defined"}`}, "defined"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			fixture := setupFileOperationTest(t)
+			Conf.Editor, Conf.Export = conf.NewEditor(), conf.NewExport()
+			tree, err := LoadTreeByBlockID(fixture.sourceID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			tree.Root.SetIALAttr("icon", "default")
+			var markdown strings.Builder
+			for _, chunk := range test.chunks {
+				markdown.WriteString("```template\n" + chunk + "\n```\n\n")
+			}
+			engine := NewLute()
+			codeTree := parse.Parse("", []byte(markdown.String()), engine.ParseOptions)
+			for child := codeTree.Root.FirstChild; child != nil; {
+				next := child.Next
+				child.ID = ast.NewNodeID()
+				child.SetIALAttr("id", child.ID)
+				tree.Root.AppendChild(child)
+				child = next
+			}
+			if _, err = filesys.WriteTree(tree); err != nil {
+				t.Fatal(err)
+			}
+			treenode.UpsertBlockTree(tree)
+			if _, err = DocSaveAsTemplate(fixture.sourceID, "scope", false); err != nil {
+				t.Fatal(err)
+			}
+			p := filepath.Join(util.DataDir, "templates", "scope.md")
+			rendered, dom, _, err := RenderTemplateWithMode(p, fixture.sourceID, TemplateRenderModePreview)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if rendered.Root.IALAttr("icon") != test.want || strings.Contains(dom, templateDocumentAttributeMarker) {
+				t.Fatalf("unexpected attributes or leaked marker: %#v %s", rendered.Root.KramdownIAL, dom)
+			}
+		})
+	}
+}
+
+func TestTemplateDocumentAttributeFormats(t *testing.T) {
+	setupFileOperationTest(t)
+	Conf.Editor, Conf.Export = conf.NewEditor(), conf.NewExport()
+	legacy, err := parseTemplateKTree([]byte(`Body
+
+{: id="20260718000001-abcdefg" icon="legacy" type="doc"}`))
+	if err != nil || legacy.Root.IALAttr("icon") != "legacy" {
+		t.Fatalf("legacy attributes changed: %v", err)
+	}
+	markdown := "```" + templateDocumentAttributeMarker + "\n{: icon=\"child\" type=\"doc\"}\n```\n\n{: id=\"20260718000001-abcdefg\" icon=\"default\" type=\"doc\"}"
+	child, err := renderTemplateDocTreeMarkdown([]byte(markdown), "")
+	if err != nil || child.Root.IALAttr("icon") != "child" {
+		t.Fatalf("child template attributes not applied: %v", err)
+	}
+	only, err := parseTemplateKTree([]byte("```" + templateDocumentAttributeMarker + "\n{: id=\"ignored\" updated=\"ignored\" icon=\"only\" type=\"doc\"}\n```"))
+	if err != nil || only.Root.IALAttr("icon") != "only" || only.Root.ID == "ignored" || only.Root.IALAttr("updated") == "ignored" {
+		t.Fatalf("standalone attributes or protected identity changed: %v", err)
+	}
+	if _, err = parseTemplateKTree([]byte("```" + templateDocumentAttributeMarker + "\ninvalid\n```")); err == nil {
+		t.Fatal("invalid attributes silently accepted")
+	}
+	code, err := parseTemplateKTree([]byte("````html\n" + markdown + "\n````"))
+	if err != nil || code.Root.IALAttr("icon") != "" {
+		t.Fatal("literal code example interpreted as attributes")
+	}
+}
+
+func TestPreviewTemplateDocumentTreeSummary(t *testing.T) {
+	fixture := setupFileOperationTest(t)
+	p := writeTemplateDocTreeTestFile(t, "saved")
+	clearTemplateDocTreePlansForTest()
+	t.Cleanup(clearTemplateDocTreePlansForTest)
+	_, _, summary, err := PreviewTemplateSource(p, fixture.sourceID, `.action{createDocTree (list (dict "title" "Parent" "children" (list (dict "title" "Child"))))}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if summary == nil || summary.Count != 2 || summary.Nodes[0].Title != "Parent" || summary.Nodes[1].Title != "Child" || summary.Nodes[1].Depth != summary.Nodes[0].Depth+1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+	if templateDocTreePlanCountForTest() != 0 {
+		t.Fatal("preview persisted creation plan")
 	}
 }
