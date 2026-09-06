@@ -122,17 +122,13 @@
   }
 
   &__context {
-    summary {
-      cursor: pointer;
-      overflow-wrap: anywhere;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-wrap: anywhere;
 
     &-name {
       margin-inline-start: 8px;
-    }
-
-    > div {
-      margin-top: 8px;
     }
   }
 

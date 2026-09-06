@@ -50,12 +50,12 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
 <div class="template-manager__path ft__breakword"></div>
 <textarea class="b3-text-field template-manager__source" spellcheck="false" aria-label="${lang.templateSource}" disabled></textarea>
 <div class="template-manager__actions">${button("save", lang.save)}${button("preview", lang.templatePreview)}</div>
-<details class="template-manager__context">
-<summary>${lang.templateContext}<span class="template-manager__context-name"></span></summary>
+<div class="template-manager__context">
+<div>${lang.templateContext}<span class="template-manager__context-name"></span></div>
 <div class="ft__on-surface">${lang.templateContextTip}</div>
 <div class="template-manager__context-fields">
 <input class="b3-text-field" type="search" placeholder="${lang.templateContextSearch}" aria-label="${lang.templateContextSearch}">
-<select class="b3-select" aria-label="${lang.templateContext}"></select></div></details>
+<select class="b3-select" aria-label="${lang.templateContext}"></select></div></div>
 <div class="template-manager__preview"></div>
 </div></div>
 </div>`,
@@ -104,7 +104,8 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
         destroy();
     });
     const update = () => {
-        pathLabel.textContent = (selected?.path || lang.templateSource) + (dirty() ? " *" : "");
+        pathLabel.textContent = (selected?.path || "") + (dirty() ? " *" : "");
+        pathLabel.classList.toggle("fn__none", !selected);
         source.disabled = !selected || selected.isDir;
         source.readOnly = busy;
         list.setAttribute("aria-busy", String(busy));
