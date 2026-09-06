@@ -76,6 +76,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
     ];
     let scheduled = false;
     let destroyed = false;
+    const sizes = new WeakMap<Element, string>();
     const schedule = () => {
         if (scheduled || destroyed) {
             return;
@@ -88,12 +89,40 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
             }
         });
     };
+    const endTitleEditing = () => {
+        const selection = window.getSelection();
+        const active = document.activeElement;
+        // 工具栏及其弹窗继续使用标题选区，不结束正在进行的富文本编辑。
+        if (active?.closest(".protyle-toolbar, .protyle-util, .b3-menu, .b3-dialog")) {
+            return;
+        }
+        let changed = false;
+        element.querySelectorAll<HTMLElement>('.tab-item[data-tabs-editing="true"]').forEach(item => {
+            const title = getTabTitle(item);
+            const selectionInTitle = title?.contains(selection?.anchorNode) &&
+                (active === element || element.contains(active));
+            if (title && !title.contains(active) && !selectionInTitle) {
+                item.dataset.tabsEditing = "false";
+                changed = true;
+            }
+        });
+        if (changed) {
+            schedule();
+        }
+    };
+    const onFocusOut = () => queueMicrotask(() => {
+        endTitleEditing();
+        schedule();
+    });
     const controller: ITabsRoot = {
         options,
         select(tabs, id, persist) {
             const state = states.get(tabs);
             if (!state || !getTabItems(tabs).some(item => itemID(item) === id)) {
                 return;
+            }
+            if (state.active !== id) {
+                getTabItems(tabs).forEach(item => item.dataset.tabsEditing = "false");
             }
             state.active = id;
             state.pending = undefined;
@@ -154,7 +183,8 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     });
                     header.addEventListener("selectstart", event => event.preventDefault());
                 }
-                const signature = JSON.stringify([readonly, ...items.map(item => [itemID(item), getTabTitle(item)?.innerHTML])]);
+                const signature = JSON.stringify([readonly, ...items.map(item => [itemID(item),
+                    item.dataset.tabsEditing === "true" ? null : getTabTitle(item)?.innerHTML])]);
                 if (state.signature !== signature || !header.firstElementChild) {
                     const focusedID = (document.activeElement as HTMLElement)?.dataset?.tabId;
                     header.replaceChildren();
@@ -165,7 +195,8 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     header.appendChild(list);
                     bindTabsDrag(list, {
                         tabs,
-                        readonly: () => (controller.options.readonly?.(tabs) ?? true) || !controller.options.move,
+                        readonly: () => (controller.options.readonly?.(tabs) ?? true) || !controller.options.move ||
+                            getTabItems(tabs).some(item => item.dataset.tabsEditing === "true"),
                         move: (source, target, after) => controller.options.move?.(source, target, after),
                         render: schedule,
                     });
@@ -182,9 +213,11 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                             const clone = title.cloneNode(true) as HTMLElement;
                             clone.className = "tabs-tab-label";
                             clone.removeAttribute("contenteditable");
+                            clone.removeAttribute("spellcheck");
                             clone.querySelectorAll("br").forEach(br => br.replaceWith(" "));
-                            clone.querySelectorAll("[contenteditable], [id], [data-node-id]").forEach(child => {
+                            clone.querySelectorAll("[contenteditable], [spellcheck], [id], [data-node-id]").forEach(child => {
                                 child.removeAttribute("contenteditable");
+                                child.removeAttribute("spellcheck");
                                 child.removeAttribute("id");
                                 child.removeAttribute("data-node-id");
                             });
@@ -263,6 +296,9 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                 const list = header.querySelector<HTMLElement>(".tabs-list");
                 list.setAttribute("aria-orientation", vertical ? "vertical" : "horizontal");
                 items.forEach((item, index) => {
+                    if (readonly) {
+                        item.dataset.tabsEditing = "false";
+                    }
                     const selected = itemID(item) === state.active;
                     const button = list.children[index] as HTMLElement;
                     const panelID = `${state.instance}-panel-${index}`;
@@ -286,8 +322,38 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                     if (title && !readonly && item.dataset.tabsEditing === "true") {
                         title.setAttribute("contenteditable", "true");
                     }
+                    const editing = !readonly && selected && item.dataset.tabsEditing === "true";
+                    button.classList.toggle("tabs-tab--editing", editing);
+                    button.draggable = !readonly && !editing && !!controller.options.move;
+                    const info = item.querySelector<HTMLElement>(":scope > .tab-item-info");
+                    if (info) {
+                        info.classList.toggle("tabs-title-editor", editing);
+                        if (!editing) {
+                            info.removeAttribute("style");
+                        }
+                    }
                 });
                 tabs.setAttribute("data-tabs-ready", "true");
+                items.forEach((item, index) => {
+                    const info = item.querySelector<HTMLElement>(":scope > .tabs-title-editor");
+                    if (!info) {
+                        return;
+                    }
+                    // 原始标题保留在页签项内，仅将显示位置对齐到导航标签，沿用块编辑和撤销事务。
+                    const button = list.children[index] as HTMLElement;
+                    const rect = button.getBoundingClientRect();
+                    const parentRect = item.getBoundingClientRect();
+                    const listRect = list.getBoundingClientRect();
+                    const scale = parentRect.width ? item.offsetWidth / parentRect.width : 1;
+                    info.style.left = `${(rect.left - parentRect.left) * scale - item.clientLeft}px`;
+                    info.style.top = `${(rect.top - parentRect.top) * scale - item.clientTop}px`;
+                    info.style.width = `${rect.width * scale}px`;
+                    info.style.height = `${rect.height * scale}px`;
+                    info.style.clipPath = `inset(${Math.max(0, listRect.top - rect.top) * scale}px ` +
+                        `${Math.max(0, rect.right - listRect.right) * scale}px ` +
+                        `${Math.max(0, rect.bottom - listRect.bottom) * scale}px ` +
+                        `${Math.max(0, listRect.left - rect.left) * scale}px)`;
+                });
                 list.querySelectorAll<HTMLElement>(".tabs-tab-label").forEach(label => {
                     label.parentElement.classList.toggle("ariaLabel", label.scrollWidth > label.clientWidth);
                 });
@@ -314,18 +380,35 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
             shown.forEach(item => controller.options.shown?.(item));
         },
         observer: new MutationObserver(schedule),
-        resize: new ResizeObserver(schedule),
+        resize: new ResizeObserver(entries => {
+            let changed = false;
+            entries.forEach(entry => {
+                const target = entry.target as HTMLElement;
+                const size = `${target.clientWidth}:${target.clientHeight}`;
+                if (sizes.get(target) !== size) {
+                    sizes.set(target, size);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                schedule();
+            }
+        }),
         destroy() {
             cancelTabsDrag(element);
             destroyed = true;
             controller.observer.disconnect();
             controller.resize.disconnect();
-            element.removeEventListener("focusout", schedule);
+            element.removeEventListener("focusout", onFocusOut);
+            element.removeEventListener("scroll", schedule, true);
+            document.removeEventListener("selectionchange", endTitleEditing);
             roots.delete(element);
         },
     };
     roots.set(element, controller);
-    element.addEventListener("focusout", schedule);
+    element.addEventListener("focusout", onFocusOut);
+    element.addEventListener("scroll", schedule, true);
+    document.addEventListener("selectionchange", endTitleEditing);
     controller.render();
 };
 

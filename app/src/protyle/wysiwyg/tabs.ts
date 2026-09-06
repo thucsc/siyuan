@@ -3,7 +3,7 @@ import {repairActiveTab} from "./tabsRemoval";
 import {transaction} from "./transaction";
 import {Constants} from "../../constants";
 import {fetchPost} from "../../util/fetch";
-import {focusBlock} from "../util/selection";
+import {focusBlock, focusByRange} from "../util/selection";
 import {genEmptyElement, genSBElement} from "../../block/util";
 import {Menu} from "../../plugin/Menu";
 import {processRender} from "../util/processCode";
@@ -11,9 +11,6 @@ import {avRender} from "../render/av/render";
 import {isHiddenTabContent} from "../render/tabsVisibility";
 import {queueTransaction} from "../util/transactionQueue";
 import {remapTabsDOMIDs} from "../util/tabsCopy";
-import {Dialog} from "../../dialog";
-import {isMobile} from "../../util/functions";
-import {getTabsTitleMarkdown, renderTabsTitleMarkdown} from "./tabsTitle";
 
 const canEdit = (protyle: IProtyle, element: Element) => !protyle.disabled &&
     !protyle.options.action.includes(Constants.CB_GET_HISTORY) && !element.closest(".protyle-wysiwyg__embed");
@@ -44,34 +41,13 @@ export const renameTab = (protyle: IProtyle, item: HTMLElement) => {
         return;
     }
     revealTabAncestors(protyle.wysiwyg.element, item);
+    item.dataset.tabsEditing = "true";
+    initEditorTabs(protyle);
     const title = getTabTitle(item);
-    const initialTitle = getTabsTitleMarkdown(protyle.lute, title);
-    const dialog = new Dialog({
-        title: window.siyuan.languages.rename,
-        content: `<div class="b3-dialog__content"><input class="b3-text-field fn__block"></div>
-<div class="b3-dialog__action">
-    <button class="b3-button b3-button--cancel">${window.siyuan.languages.cancel}</button><div class="fn__space"></div>
-    <button class="b3-button b3-button--text">${window.siyuan.languages.confirm}</button>
-</div>`,
-        width: isMobile() ? "92vw" : "520px",
-    });
-    const input = dialog.element.querySelector("input") as HTMLInputElement;
-    const buttons = dialog.element.querySelectorAll<HTMLButtonElement>(".b3-button");
-    const confirm = () => {
-        const value = input.value.trim();
-        if (value !== initialTitle) {
-            changeTabs(protyle, [item.parentElement], () => {
-                title.innerHTML = renderTabsTitleMarkdown(protyle.lute, value);
-            });
-        }
-        dialog.destroy();
-    };
-    dialog.bindInput(input, confirm);
-    input.value = initialTitle;
-    input.focus();
-    input.select();
-    buttons[0].addEventListener("click", () => dialog.destroy());
-    buttons[1].addEventListener("click", confirm);
+    const range = document.createRange();
+    range.selectNodeContents(title);
+    title.focus();
+    focusByRange(range);
 };
 
 const addTab = (protyle: IProtyle, tabs: HTMLElement) => {
@@ -213,11 +189,5 @@ export const initEditorTabs = (protyle: IProtyle) => {
             avRender(item, protyle);
             protyle.contentElement?.dispatchEvent(new Event("scroll"));
         }),
-    });
-    root.addEventListener("focusout", event => {
-        const title = (event.target as Element).closest(".tab-item-title");
-        if (title && !title.contains(event.relatedTarget as Node)) {
-            title.closest<HTMLElement>(".tab-item").dataset.tabsEditing = "false";
-        }
     });
 };
