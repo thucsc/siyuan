@@ -109,6 +109,12 @@ export const unwrapTabs = (protyle: IProtyle, tabs: HTMLElement) => {
     });
 };
 
+export const setTabsPosition = (protyle: IProtyle, tabs: HTMLElement, position: "top" | "left") => {
+    if ((tabs.getAttribute("tabs-position") || "top") !== position) {
+        changeTabs(protyle, [tabs], () => tabs.setAttribute("tabs-position", position));
+    }
+};
+
 export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLElement, anchor: HTMLElement) => {
     if (!canEdit(protyle, tabs)) {
         return;
@@ -140,13 +146,6 @@ export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLEle
             });
             focusBlock(tabs);
         }});
-    } else {
-        ["top", "left"].forEach(position => menu.addItem({
-            label: position === "top" ? lang.tabsPositionTop : lang.tabsPositionLeft,
-            icon: (tabs.getAttribute("tabs-position") || "top") === position ? "iconSelect" : undefined,
-            click: () => changeTabs(protyle, [tabs], () => tabs.setAttribute("tabs-position", position)),
-        }));
-        menu.addItem({icon: "iconSuper", label: lang.tabsUnwrap, click: () => unwrapTabs(protyle, tabs)});
     }
     const rect = anchor.getBoundingClientRect();
     menu.open({x: rect.left, y: rect.bottom});
@@ -159,7 +158,6 @@ export const initEditorTabs = (protyle: IProtyle) => {
         readonly: tabs => !canEdit(protyle, tabs || root),
         label: window.siyuan.languages.tabItem,
         addLabel: window.siyuan.languages.tabItem,
-        menuLabel: window.siyuan.languages.more,
         select: (tabs, id) => {
             if (!canEdit(protyle, tabs) || tabs.getAttribute("tabs-active-id") === id) {
                 return;

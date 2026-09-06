@@ -364,6 +364,11 @@ const gutterSingle = () => [
         node("prependListItem", lang("prependListItem")),
         node("appendListItem", lang("appendListItem")),
     ]),
+    separator("separator_tabs"),
+    node("tabs", lang("tabs"), true, [
+        node("tabsPositionTop", lang("tabsPositionTop")),
+        node("tabsPositionLeft", lang("tabsPositionLeft")),
+    ]),
     separator("separator_cancelSuperBlock"),
     node("superBlock", lang("superBlock"), true, [
         node("cancelSuperBlock", () => `${window.siyuan.languages.cancel} ${window.siyuan.languages.superBlock}`),

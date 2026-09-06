@@ -128,7 +128,7 @@ import {canShowGutterInsert, genGutterBlockButtonHTML} from "./button";
 import {getViewFoldOccurrenceID, hasViewFoldContext, setViewFold} from "../util/viewFold";
 import {exportImage} from "../export/util";
 import {CALLOUT_PRESETS, updateCalloutType, updateCustomCalloutType} from "../wysiwyg/callout";
-import {unwrapTabs} from "../wysiwyg/tabs";
+import {setTabsPosition, unwrapTabs} from "../wysiwyg/tabs";
 
 // 块类型 data-type 到本地化名称键的映射，用于块标提示中的 ${x}
 const BLOCK_TYPE_LANG_KEYS: { [key: string]: string } = {
@@ -2172,6 +2172,28 @@ export class Gutter {
                 loadSubmenu: continueListStartPromise ? async () => {
                     return genListBlockSubmenu(await continueListStartPromise);
                 } : undefined,
+            }).element);
+        } else if (type === "NodeTabs" && allowStructuralMutation) {
+            window.siyuan.menus.menu.append(new MenuItem({
+                id: "separator_tabs",
+                type: "separator",
+            }).element);
+            window.siyuan.menus.menu.append(new MenuItem({
+                id: "tabs",
+                icon: "iconTabs",
+                label: window.siyuan.languages.tabs,
+                type: "submenu",
+                submenu: [{
+                    id: "tabsPositionTop",
+                    label: window.siyuan.languages.tabsPositionTop,
+                    icon: (nodeElement.getAttribute("tabs-position") || "top") === "top" ? "iconSelect" : undefined,
+                    click: () => setTabsPosition(protyle, nodeElement as HTMLElement, "top"),
+                }, {
+                    id: "tabsPositionLeft",
+                    label: window.siyuan.languages.tabsPositionLeft,
+                    icon: nodeElement.getAttribute("tabs-position") === "left" ? "iconSelect" : undefined,
+                    click: () => setTabsPosition(protyle, nodeElement as HTMLElement, "left"),
+                }],
             }).element);
         } else if (type === "NodeSuperBlock" && !protyle.disabled) {
             window.siyuan.menus.menu.append(new MenuItem({

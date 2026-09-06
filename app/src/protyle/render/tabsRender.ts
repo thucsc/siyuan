@@ -6,7 +6,6 @@ export interface ITabsRenderOptions {
     readonly?: (tabs?: Element) => boolean;
     label?: string;
     addLabel?: string;
-    menuLabel?: string;
     select?: (tabs: HTMLElement, id: string) => void;
     rename?: (item: HTMLElement) => void;
     add?: (tabs: HTMLElement) => void;
@@ -277,16 +276,6 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                             controller.options.add?.(tabs);
                         });
                         header.appendChild(add);
-                        const menu = document.createElement("button");
-                        menu.type = "button";
-                        menu.className = "tabs-control tabs-control--more ariaLabel";
-                        menu.innerHTML = '<svg><use xlink:href="#iconMore"></use></svg>';
-                        menu.setAttribute("aria-label", escapeHtml(controller.options.menuLabel || "..."));
-                        menu.addEventListener("click", event => {
-                            event.stopPropagation();
-                            controller.options.menu?.(tabs, undefined, menu);
-                        });
-                        header.appendChild(menu);
                     }
                     state.signature = signature;
                     if (focusedID) {

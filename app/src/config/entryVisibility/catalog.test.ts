@@ -700,6 +700,19 @@ test("list block submenu follows the base block entries", () => {
     ]);
 });
 
+test("tabs layout actions have their own configurable block menu", () => {
+    assert.deepEqual(getEntryCatalogChildren("gutter.single.tabs").map(item => item.key), [
+        "tabsPositionTop", "tabsPositionLeft",
+    ]);
+    const keys = getEntryCatalogChildren("gutter.single").map(item => item.key);
+    const index = keys.indexOf("tabs");
+    assert.deepEqual(keys.slice(index - 1, index + 3), [
+        "separator_tabs", "tabs", "separator_cancelSuperBlock", "superBlock",
+    ]);
+    assert.equal(getEntryCatalogNode("gutter.single.tabs")?.simple, true);
+    assert.equal(getEntryCatalogNode("gutter.single.separator_tabs")?.type, "separator");
+});
+
 test("super block actions and vertical alignment use their respective menu groups", () => {
     assert.deepEqual(getEntryCatalogChildren("gutter.single.superBlock").map((item) => item.key), [
         "cancelSuperBlock",
