@@ -3,6 +3,7 @@ import {isMobile} from "../../../util/functions";
 import {callMobileAppShowKeyboard} from "../../../mobile/util/mobileAppUtil";
 import {hintRef, hintSlash} from "../../hint/extend";
 import {mountProtyleLiteFragment} from "../../lite/fragmentEditor";
+import {getDefaultToolbar} from "../../toolbar/defaults";
 import {highlightRender} from "../highlightRender";
 import {mathRender} from "../mathRender";
 import {positionAVRichTextEditor} from "./richTextEditorPosition";
@@ -110,10 +111,7 @@ export const openAVRichTextEditor = (options: AVRichTextEditorOptions) => {
     setPanelPosition(panelElement, options.anchorElement);
 
     const source = getAVTextSource(options.value);
-    const toolbar: IProtyleOptions["toolbar"] = [
-        "block-ref", "a", "|", "text", "strong", "em", "u", "s", "mark", "sup", "sub",
-        "code", "kbd", "tag", "inline-math", "inline-memo", "clear",
-    ];
+    const toolbar = getDefaultToolbar(isMobile());
     const hint: IProtyleOptions["hint"] = {
         extend: [{key: "((", hint: hintAVRef}, {key: "【【", hint: hintAVRef},
             {key: "（（", hint: hintAVRef}, {key: "[[", hint: hintAVRef},
