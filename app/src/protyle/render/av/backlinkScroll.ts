@@ -1,16 +1,19 @@
-// 反链内嵌编辑器随内容撑开，定位需要滚动面板或所属正文。
+// 定位仅滚动当前数据库副本，不查找反链面板或正文的滚动容器。
 export const getBacklinkScrollElement = (element: HTMLElement): HTMLElement | undefined => {
-    const backlink = element.closest<HTMLElement>(".sy__backlink");
-    if (!backlink) {
-        return;
-    }
-    if (backlink.classList.contains("sy__backlink--bottom")) {
-        return backlink.closest<HTMLElement>(".protyle-content") || undefined;
-    }
-    return element.closest<HTMLElement>(".backlinkList, .backlinkMList") || undefined;
+    return element.closest<HTMLElement>(".av--backlink") || undefined;
 };
 
-// 单行或限高字段会裁剪引用，先移动字段内部视口，再定位外层面板。
+export const scrollBacklinkTarget = (database: HTMLElement, target: HTMLElement) => {
+    const scroller = getBacklinkScrollElement(database);
+    if (!scroller || !scroller.contains(target)) {
+        return false;
+    }
+    const rect = scroller.getBoundingClientRect();
+    scroller.scrollTop += target.getBoundingClientRect().top - rect.top - scroller.clientHeight / 2;
+    return true;
+};
+
+// 单行或限高字段会裁剪引用，仅移动单元格内部视口。
 export const revealBacklinkReference = (reference: HTMLElement, cell: HTMLElement) => {
     let parent = reference.parentElement;
     while (parent && cell.contains(parent)) {

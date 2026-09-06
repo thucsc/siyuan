@@ -69,7 +69,7 @@ const createBacklinkDOMRecord = (item: IBacklinkData, index: number, id: string)
     };
 };
 
-const renderBacklinkDOMNodes = (protyle: IProtyle, nodes: Node[], record: IBacklinkDOMRecord, scrollState: {pending: boolean}) => {
+const renderBacklinkDOMNodes = (protyle: IProtyle, nodes: Node[], record: IBacklinkDOMRecord) => {
     return Promise.all(nodes.map(async item => {
         if (!(item instanceof HTMLElement)) {
             return;
@@ -77,7 +77,7 @@ const renderBacklinkDOMNodes = (protyle: IProtyle, nodes: Node[], record: IBackl
         improveBreadcrumbAppearance(item);
         processRender(item);
         highlightRender(item);
-        prepareBacklinkAV(item, record.targets, scrollState);
+        prepareBacklinkAV(item, record.targets);
         await avRender(item, protyle);
         blockRender(protyle, item);
     }));
@@ -87,7 +87,6 @@ export const renderBacklink = (protyle: IProtyle, backlinkData: IBacklinkData[])
     protyle.block.showAll = true;
     const element = protyle.wysiwyg.element;
     let records = backlinkDOMRecords.get(protyle);
-    const scrollState = {pending: !records || records.size === 0};
     if (!records) {
         records = new Map<string, IBacklinkDOMRecord>();
         backlinkDOMRecords.set(protyle, records);
@@ -146,7 +145,7 @@ export const renderBacklink = (protyle: IProtyle, backlinkData: IBacklinkData[])
     });
     const applyPromises: Promise<void>[] = [];
     changedNodes.forEach(({nodes, record}) => {
-        applyPromises.push(renderBacklinkDOMNodes(protyle, nodes, record, scrollState).then(async () => {
+        applyPromises.push(renderBacklinkDOMNodes(protyle, nodes, record).then(async () => {
             await Promise.all(nodes.map(node => {
                 if (node instanceof HTMLElement) {
                     return applyViewFoldStates(protyle, node);

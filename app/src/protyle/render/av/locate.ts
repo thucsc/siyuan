@@ -8,14 +8,13 @@ import {setAVCellAnchor, setAVItemAnchor} from "./rangeSelect";
 import {updateAVRowSelect} from "./virtualScroll";
 import {getAVLocateViewChange} from "./locateView";
 import {applyAVColorPalette, getAVCustomColors} from "./color";
-import {revealBacklinkReference} from "./backlinkScroll";
+import {getBacklinkScrollElement, revealBacklinkReference, scrollBacklinkTarget} from "./backlinkScroll";
 
 export interface IAVLocateRequest {
     itemID: string;
     keyID?: string;
     defIDs?: string[];
     scroll?: boolean;
-    scrollElement?: HTMLElement;
     groupID?: string;
     viewID?: string;
     select?: boolean;
@@ -402,18 +401,14 @@ export const finishAVLocate = (blockElement: HTMLElement, protyle: IProtyle, dat
             const refs = Array.from(cell.querySelectorAll<HTMLElement>('[data-type~="block-ref"][data-id]'))
                 .filter(ref => request.defIDs?.includes(ref.dataset.id));
             refs.forEach(ref => ref.classList.add("def--mark"));
-            if (refs[0] && request.scrollElement) {
+            if (refs[0] && getBacklinkScrollElement(blockElement)) {
                 revealBacklinkReference(refs[0], cell);
             }
             targetElement = refs[0] || cell;
         }
     }
-    if (request.scroll !== false) {
-        if (request.scrollElement) {
-            const scroller = request.scrollElement;
-            const rect = scroller.getBoundingClientRect();
-            scroller.scrollTop += targetElement.getBoundingClientRect().top - rect.top - scroller.clientHeight / 2;
-        } else if (!request.keyID && data.viewType === "table" && data.target.index === 0 && !data.target.groupID) {
+    if (request.scroll !== false && !scrollBacklinkTarget(blockElement, targetElement)) {
+        if (!request.keyID && data.viewType === "table" && data.target.index === 0 && !data.target.groupID) {
             const contentRect = protyle.contentElement.getBoundingClientRect();
             protyle.contentElement.scrollTop += blockElement.getBoundingClientRect().top - contentRect.top;
         } else {

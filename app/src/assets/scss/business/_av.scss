@@ -6,6 +6,13 @@
   margin-top: 4px !important;
   margin-bottom: 4px !important;
 
+  &--backlink {
+    max-height: min(400px, 60vh);
+    overflow: auto;
+    overscroll-behavior: contain;
+    align-items: flex-start;
+  }
+
   &:hover {
     .av__views .block__icon,
     .av__group-icon--hover {

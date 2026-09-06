@@ -1,11 +1,21 @@
 import * as assert from "node:assert/strict";
 import {describe, it} from "node:test";
-import {getBacklinkScrollElement, revealBacklinkReference} from "./backlinkScroll";
+import {getBacklinkScrollElement, revealBacklinkReference, scrollBacklinkTarget} from "./backlinkScroll";
 
 const element = (classes: string[], parent?: HTMLElement): HTMLElement => {
     const node = {
         parentElement: parent,
         classList: {contains: (name: string) => classes.includes(name)},
+        contains(target: HTMLElement) {
+            let current = target;
+            while (current) {
+                if (current === this as unknown as HTMLElement) {
+                    return true;
+                }
+                current = current.parentElement;
+            }
+            return false;
+        },
         closest(selector: string) {
             let current = this as unknown as HTMLElement;
             while (current) {
@@ -21,24 +31,53 @@ const element = (classes: string[], parent?: HTMLElement): HTMLElement => {
 };
 
 describe("database backlink scrolling", () => {
-    it("scrolls the dock list instead of the expanded inner editor", () => {
+    it("uses the database viewport inside the dock without selecting the list", () => {
         const panel = element(["sy__backlink"]);
         const list = element(["backlinkList"], panel);
         const innerEditor = element(["protyle-content"], list);
-        assert.equal(getBacklinkScrollElement(element(["av"], innerEditor)), list);
+        const database = element(["av", "av--backlink"], innerEditor);
+        assert.equal(getBacklinkScrollElement(database), database);
+        assert.equal(getBacklinkScrollElement(element([], database)), database);
     });
 
-    it("scrolls the owning document for bottom backlinks", () => {
+    it("uses the database viewport in bottom backlinks without selecting the owning document", () => {
         const ownerEditor = element(["protyle-content"]);
         const panel = element(["sy__backlink", "sy__backlink--bottom"], ownerEditor);
         const list = element(["backlinkList"], panel);
         const innerEditor = element(["protyle-content"], list);
-        assert.equal(getBacklinkScrollElement(element(["av"], innerEditor)), ownerEditor);
+        const database = element(["av", "av--backlink"], innerEditor);
+        assert.equal(getBacklinkScrollElement(database), database);
     });
 
     it("keeps ordinary database locating on the existing editor scroll path", () => {
         const editor = element(["protyle-content"]);
         assert.equal(getBacklinkScrollElement(element(["av"], editor)), undefined);
+    });
+
+    it("locates each database independently while preserving the outer reading position", () => {
+        const outer = element(["backlinkList"]);
+        outer.scrollTop = 240;
+        const first = element(["av", "av--backlink"], outer);
+        const second = element(["av", "av--backlink"], outer);
+        [first, second].forEach(database => {
+            Object.assign(database, {
+                scrollTop: 0, clientHeight: 400,
+                getBoundingClientRect: () => ({top: 100}),
+            });
+        });
+        const reference = element([], first);
+        reference.getBoundingClientRect = () => ({top: 1300}) as DOMRect;
+        assert.equal(scrollBacklinkTarget(first, reference), true);
+        assert.equal(first.scrollTop, 1000);
+        assert.equal(second.scrollTop, 0);
+        assert.equal(outer.scrollTop, 240);
+        assert.equal(scrollBacklinkTarget(second, reference), false);
+        assert.equal(second.scrollTop, 0);
+        const secondReference = element([], second);
+        secondReference.getBoundingClientRect = reference.getBoundingClientRect;
+        assert.equal(scrollBacklinkTarget(second, secondReference), true);
+        assert.equal(second.scrollTop, 1000);
+        assert.equal(outer.scrollTop, 240);
     });
 
     it("reveals a clipped reference inside a long field without scrolling outside the cell", () => {
