@@ -190,9 +190,13 @@
 
     &[data-tabs-orientation="vertical"] {
       display: grid;
-      grid-template-columns: minmax(80px, 25%) minmax(0, 1fr);
+      grid-template-columns: fit-content(min(200px, 40%)) minmax(0, 1fr);
+      // 正文左侧保留块标及折叠按钮的操作空间，避免与页签按钮重叠。
+      column-gap: 48px;
 
       > .tabs-header {
+        box-sizing: border-box;
+        min-width: 80px;
         flex-wrap: wrap;
         align-content: start;
         align-items: stretch;
