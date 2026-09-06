@@ -4,6 +4,7 @@ import {fetchPost} from "../../util/fetch";
 import {processRender} from "./processCode";
 import {highlightRender} from "../render/highlightRender";
 import {blockRender} from "../render/blockRender";
+import {revealTabsForTarget} from "../render/tabsRender";
 import {bgFade, scrollCenter} from "../../util/highlightById";
 /// #if !MOBILE
 import {pushBack} from "../../util/backForward";
@@ -393,6 +394,11 @@ const setHTML = (options: {
     }
     setCustomBlockRootReady(protyle.wysiwyg.element, true);
 
+    const tabItem = protyle.wysiwyg.element.querySelector(`[data-type="NodeTabItem"][data-node-id="${protyle.block.id}"]`);
+    if (tabItem) {
+        // 浮窗和聚焦视图默认展示被引用的页签，不改写文档中的选中状态。
+        revealTabsForTarget(tabItem, false);
+    }
     focusElementById(protyle, options.action, options.scrollAttr, options.scrollPosition,
         options.focusAfterZoom, options.suppressFocus);
 

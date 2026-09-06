@@ -1132,7 +1132,12 @@ func loadNodesByMode(node *ast.Node, inputIndex, mode, size int, isDoc, isHeadin
 	count := 0
 	switch mode {
 	case 0: // 仅加载当前 ID
-		nodes = append(nodes, node)
+		if node.Type == ast.NodeTabItem && node.ParentIs(ast.NodeTabs) {
+			// 页签项依赖外层容器生成导航，聚焦和引用预览时保留完整页签组。
+			nodes = append(nodes, node.Parent)
+		} else {
+			nodes = append(nodes, node)
+		}
 		if isDoc {
 			// 用折叠层级栈正向扫描顶层同级子块（含 node 自身折叠），避免嵌套折叠漏网
 			stack := foldHeadingStackBefore(node)
