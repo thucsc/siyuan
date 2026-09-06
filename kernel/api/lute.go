@@ -351,7 +351,11 @@ func prepareHTMLClipboardContent(luteEngine *lute.Lute, dom, text, mathML, offic
 	}
 	// 将 Word 和 WPS 批注转换为行级备注 https://github.com/siyuan-note/siyuan/issues/18748
 	resolvedDOM = normalizeWPSComments(resolvedDOM, text, wps)
-	return normalizeMSWordComments(resolvedDOM), true
+	resolvedDOM = normalizeMSWordComments(resolvedDOM)
+	if office == "" && officeMathHTML == "" && wps == "" {
+		resolvedDOM = normalizeBrowserClipboardStyle(resolvedDOM)
+	}
+	return resolvedDOM, true
 }
 
 func resolveHTMLClipboardContent(luteEngine *lute.Lute, dom, mathML, office, officeMathHTML, wps string,
