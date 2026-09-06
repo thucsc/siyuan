@@ -93,6 +93,12 @@ export const renameTab = (protyle: IProtyle, item: HTMLElement) => {
 
 const addTab = (protyle: IProtyle, tabs: HTMLElement) => {
     const item = newTab(protyle);
+    const items = getTabItems(tabs);
+    const active = items.find(entry => entry.dataset.tabsHidden === "false") ||
+        items.find(entry => entry.dataset.nodeId === tabs.getAttribute("tabs-active-id")) || items[0];
+    if (active?.hasAttribute("tabs-task")) {
+        item.setAttribute("tabs-task", " ");
+    }
     changeTabs(protyle, [tabs], () => {
         tabs.insertBefore(item, tabs.querySelector(":scope > .protyle-attr"));
         tabs.setAttribute("tabs-active-id", item.dataset.nodeId);

@@ -234,6 +234,7 @@ export const tabsRender = (element: Element, options: ITabsRenderOptions = {}) =
                             button.firstElementChild.textContent = label;
                         }
                         button.setAttribute("aria-label", escapeHtml(button.textContent));
+                        button.setAttribute("data-position", "north");
                         const marker = item.getAttribute("tabs-task");
                         if (marker !== null) {
                             const task = document.createElement("span");
