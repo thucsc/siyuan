@@ -269,6 +269,7 @@ func html2BlockDOM(c *gin.Context) {
 
 	parse.TextMarks2Inlines(tree) // 先将 TextMark 转换为 Inlines https://github.com/siyuan-note/siyuan/issues/13056
 	parse.NestedInlines2FlattedSpansHybrid(tree, false)
+	removeWhitespaceTextMarkStyles(tree)
 
 	md, err := lute.FormatNodeSync(tree.Root, luteEngine.ParseOptions, luteEngine.RenderOptions)
 	if nil != err {
@@ -293,6 +294,23 @@ func html2BlockDOM(c *gin.Context) {
 		ret.Data = map[string]any{"converted": true, "normalizedHTML": normalizedHTML, "useHTML": true}
 	} else {
 		ret.Data = gulu.Str.FromBytes(output)
+	}
+}
+
+func removeWhitespaceTextMarkStyles(tree *parse.Tree) {
+	var unlinks []*ast.Node
+	ast.Walk(tree.Root, func(n *ast.Node, entering bool) ast.WalkStatus {
+		if entering && n.Type == ast.NodeTextMark && strings.TrimSpace(n.TextMarkTextContent) == "" {
+			n.RemoveIALAttr("style")
+			// 空白文本无法绑定 Kramdown 行内属性，移除样式属性节点以免渲染为正文。
+			if n.Next != nil && n.Next.Type == ast.NodeKramdownSpanIAL && parse.IALVal(n.Next, "style") != "" {
+				unlinks = append(unlinks, n.Next)
+			}
+		}
+		return ast.WalkContinue
+	})
+	for _, n := range unlinks {
+		n.Unlink()
 	}
 }
 

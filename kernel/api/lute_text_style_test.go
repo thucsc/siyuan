@@ -68,6 +68,9 @@ func TestHTML2BlockDOMQuotedFontFamily(t *testing.T) {
 				styled, bold, link := 0, false, false
 				ast.Walk(engine.BlockDOM2Tree(response.Data).Root, func(n *ast.Node, entering bool) ast.WalkStatus {
 					if entering && n.Type == ast.NodeTextMark {
+						if strings.TrimSpace(n.TextMarkTextContent) == "" {
+							return ast.WalkContinue
+						}
 						style := n.IALAttr("style")
 						for _, want := range []string{`font-family: "Mona Sans VF", "Segoe UI", Arial;`, "color: rgb(31, 35, 40);", "background-color: white;", "font-size: 14.000000px;"} {
 							if !strings.Contains(style, want) {
@@ -122,5 +125,44 @@ func TestHTML2BlockDOMMatchesElementsByDefault(t *testing.T) {
 	}
 	if strings.Contains(response.Data, "style=") || strings.Contains(response.Data, `data-type="a u"`) {
 		t.Fatalf("source appearance survived: %s", response.Data)
+	}
+}
+
+func TestHTML2BlockDOMDoesNotLeakWhitespaceTextMarkStyles(t *testing.T) {
+	originalConf := model.Conf
+	model.Conf = model.NewAppConf()
+	model.Conf.System = &conf.System{}
+	t.Cleanup(func() { model.Conf = originalConf })
+	gin.SetMode(gin.TestMode)
+	input := `<h3 style="color: rgb(31, 35, 40); font-family: Arial; font-size: 20px; font-weight: 600">` +
+		`author<span>&nbsp;</span>commented<span>&nbsp;</span><relative-time><span>now</span></relative-time></h3>`
+	body, err := json.Marshal(map[string]any{
+		"dom": input, "skipBase64Assets": true, "skipInlineSVGAssets": true, "preserveSourceFormat": true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	recorder := httptest.NewRecorder()
+	context, _ := gin.CreateTestContext(recorder)
+	context.Request = httptest.NewRequest(http.MethodPost, "/api/lute/html2BlockDOM", strings.NewReader(string(body)))
+	context.Request.Header.Set("Content-Type", "application/json")
+	html2BlockDOM(context)
+	var response struct {
+		Code int
+		Data string
+	}
+	if err = json.Unmarshal(recorder.Body.Bytes(), &response); err != nil || response.Code != 0 {
+		t.Fatalf("conversion failed: %s, %v", recorder.Body.String(), err)
+	}
+	if strings.Contains(response.Data, "{: style=") {
+		t.Fatalf("leaked attributes: %s", response.Data)
+	}
+	if !strings.Contains(response.Data, `style="color: rgb(31, 35, 40);font-family: Arial;font-size: 20.000000px;"`) {
+		t.Fatalf("lost visible source formatting: %s", response.Data)
+	}
+	for _, text := range []string{"author", "commented", "now"} {
+		if !strings.Contains(response.Data, text) {
+			t.Fatalf("lost %q: %s", text, response.Data)
+		}
 	}
 }
