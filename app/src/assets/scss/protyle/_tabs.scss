@@ -81,6 +81,28 @@
     pointer-events: none;
   }
 
+  .tabs-task {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    font-size: 12px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &--custom {
+      box-sizing: border-box;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+    }
+  }
+
   .tabs-tab--dragging {
     opacity: .36;
   }

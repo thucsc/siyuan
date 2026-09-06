@@ -12,6 +12,46 @@ import {isHiddenTabContent} from "../render/tabsVisibility";
 import {queueTransaction} from "../util/transactionQueue";
 import {remapTabsDOMIDs} from "../util/tabsCopy";
 import {copyTextByType} from "../toolbar/util";
+import {Dialog} from "../../dialog";
+import {showMessage} from "../../dialog/message";
+import {getTaskListMarker, nextTaskListMarker} from "./taskListMarker";
+
+export const setTabTask = (protyle: IProtyle, item: HTMLElement, marker: string) => {
+    if (!item.isConnected || !item.hasAttribute("tabs-task") || !getTaskListMarker(`[${marker}]`, false)) {
+        return;
+    }
+    changeTabs(protyle, [item], () => item.setAttribute("tabs-task", marker));
+};
+
+const editTabTask = (protyle: IProtyle, item: HTMLElement) => {
+    if (!canEdit(protyle, item)) {
+        return;
+    }
+    const lang = window.siyuan.languages;
+    const dialog = new Dialog({
+        title: `${lang.check} - ${lang.custom}`,
+        content: `<div class="b3-dialog__content"><input class="b3-text-field fn__block" maxlength="1"></div>
+<div class="b3-dialog__action"><button class="b3-button b3-button--cancel">${lang.cancel}</button>
+<div class="fn__space"></div><button class="b3-button b3-button--text">${lang.confirm}</button></div>`,
+        width: "320px",
+    });
+    const input = dialog.element.querySelector("input");
+    input.value = item.getAttribute("tabs-task") || " ";
+    const buttons = dialog.element.querySelectorAll("button");
+    buttons[0].addEventListener("click", () => dialog.destroy());
+    const confirm = () => {
+        const marker = input.value || " ";
+        if (!getTaskListMarker(`[${marker}]`, false)) {
+            showMessage(lang.invalid, 3000, "error");
+            return;
+        }
+        setTabTask(protyle, item, marker);
+        dialog.destroy();
+    };
+    buttons[1].addEventListener("click", confirm);
+    dialog.bindInput(input, confirm);
+    input.select();
+};
 
 const canEdit = (protyle: IProtyle, element: Element) => !protyle.disabled &&
     !protyle.options.action.includes(Constants.CB_GET_HISTORY) && !element.closest(".protyle-wysiwyg__embed");
@@ -128,6 +168,9 @@ export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLEle
         click: () => {copyTextByType([item.dataset.nodeId], "ref");},
     }]});
     if (canEdit(protyle, tabs)) {
+        if (item.hasAttribute("tabs-task")) {
+            menu.addItem({icon: "iconCheck", label: `${lang.check} - ${lang.custom}`, click: () => editTabTask(protyle, item)});
+        }
         menu.addItem({icon: "iconEdit", label: lang.rename, click: () => renameTab(protyle, item)});
         menu.addItem({icon: "iconCopy", label: lang.duplicateCopy, click: () => {
             const copy = item.cloneNode(true) as HTMLElement;
@@ -164,6 +207,9 @@ export const initEditorTabs = (protyle: IProtyle) => {
         readonly: tabs => !canEdit(protyle, tabs || root),
         label: window.siyuan.languages.tabItem,
         addLabel: window.siyuan.languages.tabItem,
+        taskLabel: window.siyuan.languages.check,
+        task: item => setTabTask(protyle, item, nextTaskListMarker(item.getAttribute("tabs-task"))),
+        taskMenu: item => editTabTask(protyle, item),
         select: (tabs, id) => {
             if (!canEdit(protyle, tabs) || tabs.getAttribute("tabs-active-id") === id) {
                 return;

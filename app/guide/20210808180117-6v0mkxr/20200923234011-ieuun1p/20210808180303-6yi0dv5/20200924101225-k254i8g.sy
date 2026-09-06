@@ -6,7 +6,7 @@
 		"id": "20200924101225-k254i8g",
 		"title": "Content Block Type",
 		"type": "doc",
-		"updated": "20260906133808"
+		"updated": "20260906185527"
 	},
 	"Children": [
 		{
@@ -1336,7 +1336,7 @@
 			"HeadingLevel": 2,
 			"Properties": {
 				"id": "20210104091538-a55chyw",
-				"updated": "20260906133808"
+				"updated": "20260906185527"
 			},
 			"Children": [
 				{
@@ -2696,7 +2696,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260905124213-wbxn79t",
-				"updated": "20260906133808"
+				"updated": "20260906185527"
 			},
 			"HeadingLevel": 3,
 			"Children": [
@@ -2786,7 +2786,7 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-knct56j",
-				"updated": "20260906133808"
+				"updated": "20260906185527"
 			},
 			"Children": [
 				{
@@ -2809,7 +2809,7 @@
 				},
 				{
 					"Type": "NodeText",
-					"Data": " to copy a block reference to that tab. Clicking the reference switches to the target tab and reveals each enclosing tab when nested. On mobile, you can also create a tabs block from the editor insert menu."
+					"Data": " to copy a block reference to that tab. Clicking the reference switches to the target tab and reveals each enclosing tab when nested. On mobile, you can also create a tabs block from the editor insert menu. When a task list is converted to tabs, each title shows its task status. Click the status icon to toggle completion, or right-click it to enter a custom status character; an empty value means incomplete. Converting back to a task list preserves the current status, including custom markers. Status changes do not switch tabs or alter title text and formatting."
 				}
 			]
 		},
