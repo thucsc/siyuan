@@ -1121,7 +1121,7 @@ func getBlockIndex(c *gin.Context) {
 
 	id := arg["id"].(string)
 	boxID := encryptedNotebookFromArg(arg)
-	if !holdBlockRequest(c, ret, boxID, arg) {
+	if !holdBlockRequest(c, ret, boxID, arg, true) {
 		return
 	}
 	if !isBlockPublishAccessible(c, id, boxID) {
