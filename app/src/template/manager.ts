@@ -54,7 +54,6 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
 <select class="b3-select" aria-label="${lang.templateContext}"></select></label>
 <div class="template-manager__preview"></div>
 </div></div>
-<div class="template-manager__actions">${button("close", lang.close)}</div>
 </div>`,
         destroyCallback: () => {
             clearTemplatePreview(preview);
@@ -169,7 +168,7 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
             title,
             width: "min(520px, 92vw)",
             content: `<div class="b3-dialog__content"><label>${lang.savePath}<input class="b3-text-field fn__block" spellcheck="false"></label></div>
-<div class="b3-dialog__action">${button("cancel", lang.cancel)}${button("confirm", lang.confirm)}</div>`
+<div class="b3-dialog__action">${button("cancel", lang.cancel)}<div class="fn__space"></div>${button("confirm", lang.confirm)}</div>`
         });
         const input = prompt.element.querySelector<HTMLInputElement>("input");
         input.value = value;
@@ -191,7 +190,7 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
             title: lang.move,
             width: "min(520px, 92vw)",
             content: `<div class="b3-dialog__content"><label>${lang.savePath}<select class="b3-select fn__block"></select></label></div>
-<div class="b3-dialog__action">${button("cancel", lang.cancel)}${button("confirm", lang.confirm)}</div>`
+<div class="b3-dialog__action">${button("cancel", lang.cancel)}<div class="fn__space"></div>${button("confirm", lang.confirm)}</div>`
         });
         const destination = prompt.element.querySelector<HTMLSelectElement>("select");
         destination.add(new Option("/", ""));
@@ -255,9 +254,7 @@ ${button("rename", lang.rename)}${button("move", lang.move)}${button("remove", l
         if (!action || busy) {
             return;
         }
-        if (action === "close") {
-            dialog.destroy();
-        } else if (action === "save") {
+        if (action === "save") {
             void run(async () => {
                 const content = useCRLF ? source.value.replace(/\n/g, "\r\n") : source.value;
                 const response = await api({action: "write", path: selected.path, content, revision});
