@@ -185,9 +185,6 @@ export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLEle
         click: () => {copyTextByType([item.dataset.nodeId], "ref");},
     }]});
     if (canEdit(protyle, tabs)) {
-        menu.addItem({icon: "iconCheck", label: lang.task,
-            checked: getTabItems(tabs).some(entry => entry.hasAttribute("tabs-task")),
-            click: () => toggleTabsTasks(protyle, tabs)});
         if (item.hasAttribute("tabs-task")) {
             menu.addItem({icon: "iconCheck", label: lang.customTaskStatus, click: () => editTabTask(protyle, item)});
         }

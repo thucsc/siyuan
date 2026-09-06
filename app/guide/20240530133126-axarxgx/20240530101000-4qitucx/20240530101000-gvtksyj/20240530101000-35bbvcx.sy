@@ -7,7 +7,7 @@
 		"id": "20240530101000-35bbvcx",
 		"title": "コンテンツブロックの種類",
 		"type": "doc",
-		"updated": "20260906210725"
+		"updated": "20260906220233"
 	},
 	"Children": [
 		{
@@ -1422,7 +1422,7 @@
 			"Properties": {
 				"ID": "20240530101000-rjjxxn8",
 				"id": "20240530101000-p035stn",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
@@ -2980,7 +2980,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260906003122-3mia0g1",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
@@ -2995,12 +2995,30 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-azyooos",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
 					"Type": "NodeText",
-					"Data": "タブ項目にはタイトルと本文があり、入れ子の内容とブロック参照に対応しています。タイトルを右クリックし、タスクの項目でグループ全体のタスクモードを切り替えられます。"
+					"Data": "タブ項目にはタイトルと本文があり、入れ子の内容とブロック参照に対応しています。ブロックアイコンのメニューで "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "タブブロック"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " - "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "タスク"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " を選択すると、グループ全体のタスクモードを切り替えられます。"
 				}
 			]
 		},

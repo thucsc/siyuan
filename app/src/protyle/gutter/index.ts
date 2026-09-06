@@ -128,7 +128,8 @@ import {canShowGutterInsert, genGutterBlockButtonHTML} from "./button";
 import {getViewFoldOccurrenceID, hasViewFoldContext, setViewFold} from "../util/viewFold";
 import {exportImage} from "../export/util";
 import {CALLOUT_PRESETS, updateCalloutType, updateCustomCalloutType} from "../wysiwyg/callout";
-import {setTabsPosition, unwrapTabs} from "../wysiwyg/tabs";
+import {setTabsPosition, toggleTabsTasks, unwrapTabs} from "../wysiwyg/tabs";
+import {getTabItems} from "../render/tabsRender";
 
 // 块类型 data-type 到本地化名称键的映射，用于块标提示中的 ${x}
 const BLOCK_TYPE_LANG_KEYS: { [key: string]: string } = {
@@ -2180,6 +2181,12 @@ export class Gutter {
                     label: window.siyuan.languages.tabsPositionLeft,
                     icon: nodeElement.getAttribute("tabs-position") === "left" ? "iconSelect" : undefined,
                     click: () => setTabsPosition(protyle, nodeElement as HTMLElement, "left"),
+                }, {
+                    id: "tabsTask",
+                    label: window.siyuan.languages.task,
+                    icon: "iconCheck",
+                    checked: getTabItems(nodeElement as HTMLElement).some(item => item.hasAttribute("tabs-task")),
+                    click: () => toggleTabsTasks(protyle, nodeElement as HTMLElement),
                 }],
             }).element);
         } else if (type === "NodeSuperBlock" && !protyle.disabled) {

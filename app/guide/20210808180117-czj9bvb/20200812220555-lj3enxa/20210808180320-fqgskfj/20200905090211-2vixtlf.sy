@@ -6,7 +6,7 @@
 		"id": "20200905090211-2vixtlf",
 		"title": "内容块类型",
 		"type": "doc",
-		"updated": "20260906210725"
+		"updated": "20260906220233"
 	},
 	"Children": [
 		{
@@ -1369,7 +1369,7 @@
 			"HeadingLevel": 2,
 			"Properties": {
 				"id": "20210104090624-9qgquxh",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
@@ -2868,7 +2868,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260906003122-tqc63mt",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
@@ -2883,12 +2883,30 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-xun3tcl",
-				"updated": "20260906210725"
+				"updated": "20260906220233"
 			},
 			"Children": [
 				{
 					"Type": "NodeText",
-					"Data": "页签项包含标题和正文，支持嵌套内容和块引用。右键点击页签标题，可通过任务选项切换整组的任务模式。"
+					"Data": "页签项包含标题和正文，支持嵌套内容和块引用。在块标菜单中选择 "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "页签块"
+				},
+				{
+					"Type": "NodeText",
+					"Data": " - "
+				},
+				{
+					"Type": "NodeTextMark",
+					"TextMarkType": "kbd",
+					"TextMarkTextContent": "任务"
+				},
+				{
+					"Type": "NodeText",
+					"Data": "，可切换整组的任务模式。"
 				}
 			]
 		},

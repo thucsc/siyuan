@@ -710,9 +710,9 @@ test("list block submenu follows the base block entries", () => {
     ]);
 });
 
-test("tabs layout actions have their own configurable block menu", () => {
+test("tabs layout and task actions have their own configurable block menu", () => {
     assert.deepEqual(getEntryCatalogChildren("gutter.single.tabs").map(item => item.key), [
-        "tabsPositionTop", "tabsPositionLeft",
+        "tabsPositionTop", "tabsPositionLeft", "tabsTask",
     ]);
     const keys = getEntryCatalogChildren("gutter.single").map(item => item.key);
     const index = keys.indexOf("tabs");
@@ -720,6 +720,12 @@ test("tabs layout actions have their own configurable block menu", () => {
         "separator_tabs", "tabs", "separator_cancelSuperBlock", "superBlock",
     ]);
     assert.equal(getEntryCatalogNode("gutter.single.tabs")?.simple, true);
+    assert.equal(getEntryCatalogNode("gutter.single.tabs.tabsTask")?.simple, true);
+    assert.equal(getEntryCatalogNode("gutter.single.tabs.tabsTask")?.type, "entry");
+    const source = readFileSync(resolve(process.cwd(), "src/protyle/gutter/index.ts"), "utf8");
+    const submenu = source.slice(source.indexOf('id: "tabsPositionTop"'), source.indexOf('} else if (type === "NodeSuperBlock" && !protyle.disabled)'));
+    assert.deepEqual(Array.from(submenu.matchAll(/id: "([^"]+)"/g), match => match[1]),
+        getEntryCatalogChildren("gutter.single.tabs").map(item => item.key));
     assert.equal(getEntryCatalogNode("gutter.single.separator_tabs")?.type, "separator");
 });
 

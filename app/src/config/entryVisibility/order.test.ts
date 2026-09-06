@@ -32,6 +32,14 @@ test("entry order ignores unknown and duplicate keys", () => {
     assert.deepEqual(mergeEntryOrder(["a", "b", "c"], ["missing", "c", "c", "a"]), ["c", "a", "b"]);
 });
 
+test("tab task action merges into saved layout menus while preserving plugin slots", () => {
+    const defaults = getEntryCatalogChildren("gutter.single.tabs").map(item => item.key);
+    const saved = ["tabsPositionLeft", "plugin:example:item", "tabsPositionTop"];
+    const merged = mergeEntryOrderPreservingUnknown(defaults, saved);
+    assert.deepEqual(merged.filter(key => key !== "tabsTask"), saved);
+    assert.deepEqual(merged, ["tabsPositionLeft", "plugin:example:item", "tabsTask", "tabsPositionTop"]);
+});
+
 test("tab conversion merges into saved block menus without moving plugin slots", () => {
     const entries = getEntryCatalogChildren("gutter.single.turnInto");
     const defaults = entries.map(item => item.key);
