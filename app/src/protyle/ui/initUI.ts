@@ -1,4 +1,5 @@
 import {setEditMode} from "../util/setEditMode";
+import {isTabGutterBridge} from "../gutter/tabs";
 import {scrollEvent} from "../scroll/event";
 import {isMobile} from "../../util/functions";
 import {Constants} from "../../constants";
@@ -232,6 +233,10 @@ export const initUI = (protyle: IProtyle) => {
             overAttr = false;
         }
 
+        if (protyle.gutter && isTabGutterBridge(protyle.wysiwyg.element, protyle.gutter.element,
+            event.target, event.clientX, event.clientY)) {
+            return;
+        }
         const tabsHeader = hasClosestByClassName(event.target, "tabs-header");
         const nodeElement = tabsHeader ? hasClosestBlock(tabsHeader.parentElement) : hasClosestBlock(event.target);
         if (!tabsHeader && nodeElement && nodeElement.getAttribute("data-type") === "NodeTabItem") {
