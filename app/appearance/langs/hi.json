@@ -1,4 +1,6 @@
 {
+	"task": "कार्य",
+	"customTaskStatus": "कस्टम कार्य स्थिति",
 	"imageViewerPlay": "स्लाइड शो चलाएँ",
 	"imageFlipHorizontal": "क्षैतिज रूप से पलटें",
 	"imageFlipVertical": "लंबवत रूप से पलटें",

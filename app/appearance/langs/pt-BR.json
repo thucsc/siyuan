@@ -1,4 +1,6 @@
 {
+	"task": "Tarefa",
+	"customTaskStatus": "Status de tarefa personalizado",
 	"imageViewerPlay": "Reproduzir apresentação de slides",
 	"imageFlipHorizontal": "Inverter horizontalmente",
 	"imageFlipVertical": "Inverter verticalmente",

@@ -1,4 +1,6 @@
 {
+	"task": "Taak",
+	"customTaskStatus": "Aangepaste taakstatus",
 	"imageViewerPlay": "Diavoorstelling afspelen",
 	"imageFlipHorizontal": "Horizontaal spiegelen",
 	"imageFlipVertical": "Verticaal spiegelen",

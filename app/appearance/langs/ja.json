@@ -1,4 +1,6 @@
 {
+	"task": "タスク",
+	"customTaskStatus": "カスタムタスク状態",
 	"imageViewerPlay": "スライドショーを再生",
 	"imageFlipHorizontal": "左右反転",
 	"imageFlipVertical": "上下反転",

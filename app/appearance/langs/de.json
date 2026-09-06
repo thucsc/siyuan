@@ -1,4 +1,6 @@
 {
+	"task": "Aufgabe",
+	"customTaskStatus": "Benutzerdefinierter Aufgabenstatus",
 	"imageViewerPlay": "Diashow starten",
 	"imageFlipHorizontal": "Horizontal spiegeln",
 	"imageFlipVertical": "Vertikal spiegeln",

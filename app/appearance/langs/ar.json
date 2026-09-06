@@ -1,4 +1,6 @@
 {
+	"task": "مهمة",
+	"customTaskStatus": "حالة مهمة مخصصة",
 	"imageViewerPlay": "تشغيل عرض الشرائح",
 	"imageFlipHorizontal": "قلب أفقي",
 	"imageFlipVertical": "قلب عمودي",

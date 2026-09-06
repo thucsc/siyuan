@@ -6,7 +6,7 @@
 		"id": "20200924101225-k254i8g",
 		"title": "Content Block Type",
 		"type": "doc",
-		"updated": "20260906202104"
+		"updated": "20260906210725"
 	},
 	"Children": [
 		{
@@ -1336,7 +1336,7 @@
 			"HeadingLevel": 2,
 			"Properties": {
 				"id": "20210104091538-a55chyw",
-				"updated": "20260906202104"
+				"updated": "20260906210725"
 			},
 			"Children": [
 				{
@@ -2786,7 +2786,7 @@
 			"Type": "NodeHeading",
 			"Properties": {
 				"id": "20260906003122-tfblsll",
-				"updated": "20260906202104"
+				"updated": "20260906210725"
 			},
 			"Children": [
 				{
@@ -2801,12 +2801,12 @@
 			"Type": "NodeParagraph",
 			"Properties": {
 				"id": "20260906003122-gtkz3ie",
-				"updated": "20260906202104"
+				"updated": "20260906210725"
 			},
 			"Children": [
 				{
 					"Type": "NodeText",
-					"Data": "Each tab item has a title and body and supports nested content and block references. Right-click a tab title and use the checkbox option to toggle task mode for the group."
+					"Data": "Each tab item has a title and body and supports nested content and block references. Right-click a tab title and use the task option to toggle task mode for the group."
 				}
 			]
 		},

@@ -1,4 +1,6 @@
 {
+	"task": "Task",
+	"customTaskStatus": "Custom task status",
 	"imageViewerPlay": "Play slideshow",
 	"imageFlipHorizontal": "Flip horizontally",
 	"imageFlipVertical": "Flip vertically",

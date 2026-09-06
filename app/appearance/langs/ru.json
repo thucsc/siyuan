@@ -1,4 +1,6 @@
 {
+	"task": "Задача",
+	"customTaskStatus": "Пользовательский статус задачи",
 	"imageViewerPlay": "Запустить слайд-шоу",
 	"imageFlipHorizontal": "Отразить по горизонтали",
 	"imageFlipVertical": "Отразить по вертикали",

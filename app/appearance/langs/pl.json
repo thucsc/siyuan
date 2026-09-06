@@ -1,4 +1,6 @@
 {
+	"task": "Zadanie",
+	"customTaskStatus": "Niestandardowy stan zadania",
 	"imageViewerPlay": "Odtwórz pokaz slajdów",
 	"imageFlipHorizontal": "Odwróć w poziomie",
 	"imageFlipVertical": "Odwróć w pionie",

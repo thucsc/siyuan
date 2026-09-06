@@ -1,4 +1,6 @@
 {
+	"task": "任務",
+	"customTaskStatus": "自訂任務狀態",
 	"imageViewerPlay": "播放投影片",
 	"imageFlipHorizontal": "水平翻轉",
 	"imageFlipVertical": "垂直翻轉",

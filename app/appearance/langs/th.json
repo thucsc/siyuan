@@ -1,4 +1,6 @@
 {
+	"task": "งาน",
+	"customTaskStatus": "สถานะงานแบบกำหนดเอง",
 	"imageViewerPlay": "เล่นสไลด์โชว์",
 	"imageFlipHorizontal": "พลิกแนวนอน",
 	"imageFlipVertical": "พลิกแนวตั้ง",

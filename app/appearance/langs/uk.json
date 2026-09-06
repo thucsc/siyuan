@@ -1,4 +1,6 @@
 {
+	"task": "Завдання",
+	"customTaskStatus": "Власний стан завдання",
 	"imageViewerPlay": "Запустити показ слайдів",
 	"imageFlipHorizontal": "Віддзеркалити горизонтально",
 	"imageFlipVertical": "Віддзеркалити вертикально",

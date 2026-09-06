@@ -1,4 +1,6 @@
 {
+	"task": "작업",
+	"customTaskStatus": "사용자 지정 작업 상태",
 	"imageViewerPlay": "슬라이드 쇼 재생",
 	"imageFlipHorizontal": "좌우 반전",
 	"imageFlipVertical": "상하 반전",

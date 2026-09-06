@@ -1,4 +1,6 @@
 {
+	"task": "Tugas",
+	"customTaskStatus": "Status tugas kustom",
 	"imageViewerPlay": "Putar tayangan slide",
 	"imageFlipHorizontal": "Balik secara horizontal",
 	"imageFlipVertical": "Balik secara vertikal",

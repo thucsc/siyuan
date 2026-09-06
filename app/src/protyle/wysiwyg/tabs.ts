@@ -42,7 +42,7 @@ const editTabTask = (protyle: IProtyle, item: HTMLElement) => {
     }
     const lang = window.siyuan.languages;
     const dialog = new Dialog({
-        title: `${lang.check} - ${lang.custom}`,
+        title: lang.customTaskStatus,
         content: `<div class="b3-dialog__content"><input class="b3-text-field fn__block" maxlength="1"></div>
 <div class="b3-dialog__action"><button class="b3-button b3-button--cancel">${lang.cancel}</button>
 <div class="fn__space"></div><button class="b3-button b3-button--text">${lang.confirm}</button></div>`,
@@ -185,11 +185,11 @@ export const openTabsMenu = (protyle: IProtyle, tabs: HTMLElement, item: HTMLEle
         click: () => {copyTextByType([item.dataset.nodeId], "ref");},
     }]});
     if (canEdit(protyle, tabs)) {
-        menu.addItem({icon: "iconCheck", label: lang.checkbox,
+        menu.addItem({icon: "iconCheck", label: lang.task,
             checked: getTabItems(tabs).some(entry => entry.hasAttribute("tabs-task")),
             click: () => toggleTabsTasks(protyle, tabs)});
         if (item.hasAttribute("tabs-task")) {
-            menu.addItem({icon: "iconCheck", label: `${lang.check} - ${lang.custom}`, click: () => editTabTask(protyle, item)});
+            menu.addItem({icon: "iconCheck", label: lang.customTaskStatus, click: () => editTabTask(protyle, item)});
         }
         menu.addItem({icon: "iconEdit", label: lang.rename, click: () => renameTab(protyle, item)});
         menu.addItem({icon: "iconCopy", label: lang.duplicateCopy, click: () => {
@@ -227,7 +227,7 @@ export const initEditorTabs = (protyle: IProtyle) => {
         readonly: tabs => !canEdit(protyle, tabs || root),
         label: window.siyuan.languages.tabItem,
         addLabel: window.siyuan.languages.tabItem,
-        taskLabel: window.siyuan.languages.check,
+        taskLabel: window.siyuan.languages.task,
         task: item => setTabTask(protyle, item, nextTaskListMarker(item.getAttribute("tabs-task"))),
         taskMenu: item => editTabTask(protyle, item),
         endEdit: () => hideElements(["toolbar"], protyle),

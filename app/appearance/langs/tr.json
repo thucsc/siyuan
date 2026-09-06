@@ -1,4 +1,6 @@
 {
+	"task": "Görev",
+	"customTaskStatus": "Özel görev durumu",
 	"imageViewerPlay": "Slayt gösterisini oynat",
 	"imageFlipHorizontal": "Yatay çevir",
 	"imageFlipVertical": "Dikey çevir",

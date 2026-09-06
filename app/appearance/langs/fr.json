@@ -1,4 +1,6 @@
 {
+	"task": "Tâche",
+	"customTaskStatus": "État de tâche personnalisé",
 	"imageViewerPlay": "Lancer le diaporama",
 	"imageFlipHorizontal": "Retourner horizontalement",
 	"imageFlipVertical": "Retourner verticalement",

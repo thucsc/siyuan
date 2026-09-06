@@ -1,4 +1,6 @@
 {
+	"task": "משימה",
+	"customTaskStatus": "מצב משימה מותאם אישית",
 	"imageViewerPlay": "הפעלת מצגת",
 	"imageFlipHorizontal": "היפוך אופקי",
 	"imageFlipVertical": "היפוך אנכי",

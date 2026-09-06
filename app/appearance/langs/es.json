@@ -1,4 +1,6 @@
 {
+	"task": "Tarea",
+	"customTaskStatus": "Estado de tarea personalizado",
 	"imageViewerPlay": "Reproducir presentación",
 	"imageFlipHorizontal": "Voltear horizontalmente",
 	"imageFlipVertical": "Voltear verticalmente",

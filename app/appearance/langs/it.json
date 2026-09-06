@@ -1,4 +1,6 @@
 {
+	"task": "Attività",
+	"customTaskStatus": "Stato attività personalizzato",
 	"imageViewerPlay": "Avvia presentazione",
 	"imageFlipHorizontal": "Capovolgi orizzontalmente",
 	"imageFlipVertical": "Capovolgi verticalmente",

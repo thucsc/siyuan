@@ -1,4 +1,6 @@
 {
+	"task": "Úloha",
+	"customTaskStatus": "Vlastný stav úlohy",
 	"imageViewerPlay": "Spustiť prezentáciu",
 	"imageFlipHorizontal": "Prevrátiť vodorovne",
 	"imageFlipVertical": "Prevrátiť zvislo",
