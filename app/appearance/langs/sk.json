@@ -1,4 +1,6 @@
 {
+	"pasteAndMatchElements": "Prilepiť a prispôsobiť prvky",
+	"pasteAndKeepSourceFormat": "Prilepiť so zachovaním zdrojového formátovania",
 	"templatePackageMoveTip": "Priečinky balíkov šablón nemožno premenovať ani presunúť",
 	"avDragRemoveSorts": "Tento presun je v rozpore s aktuálnymi pravidlami zoradenia. Odstrániť pravidlá zoradenia tohto zobrazenia a uložiť úplné poradie po presunutí ako vlastné poradie?",
 	"templateManager": "Správca šablón",

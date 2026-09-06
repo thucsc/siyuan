@@ -1,4 +1,6 @@
 {
+	"pasteAndMatchElements": "貼上並匹配元素",
+	"pasteAndKeepSourceFormat": "貼上並保留來源格式",
 	"templatePackageMoveTip": "範本套件資料夾不支援重新命名或移動",
 	"avDragRemoveSorts": "此次拖曳與目前的排序規則衝突。是否移除此檢視的排序規則，並將拖曳後的完整順序儲存為自訂順序？",
 	"templateManager": "範本管理",

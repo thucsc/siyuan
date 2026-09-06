@@ -17,7 +17,7 @@
 package api
 
 import (
-	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/88250/lute/parse"
@@ -25,177 +25,41 @@ import (
 	nethtml "golang.org/x/net/html"
 )
 
-var clipboardThemeProperties = []string{"color", "background-color", "font-family", "font-size"}
+var clipboardTextStyleProperties = map[string]bool{
+	"background":           true,
+	"background-color":     true,
+	"color":                true,
+	"font":                 true,
+	"font-family":          true,
+	"font-size":            true,
+	"font-style":           true,
+	"font-weight":          true,
+	"text-decoration":      true,
+	"text-decoration-line": true,
+}
 
-var clipboardTransparentColor = regexp.MustCompile(`(?i)^(transparent|#[0-9a-f]{3}0|#[0-9a-f]{6}00|(?:rgba|hsla)\([^)]*,\s*(?:0(?:\.0*)?|\.0+)%?\s*\)|(?:rgb|rgba|hsl|hsla)\([^)]*/\s*(?:0(?:\.0*)?|\.0+)%?\s*\))$`)
-
-// normalizeBrowserClipboardStyle 移除浏览器复制正文时附带的共同主题样式，保留局部格式差异。
-func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
+// matchHTMLClipboardElements 保留 HTML 元素及基本强调，移除由来源应用决定的文字外观。
+func matchHTMLClipboardElements(dom string) string {
 	lower := strings.ToLower(dom)
-	if strings.Contains(lower, "data-type=") {
-		return dom
-	}
-	if !strings.Contains(lower, "style") {
+	if !strings.Contains(lower, "style") && !strings.Contains(lower, "<font") {
 		return dom
 	}
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(dom))
 	if err != nil {
 		return dom
 	}
-	doc.Find("*").Each(func(_ int, selection *goquery.Selection) {
-		if isClipboardDocumentBoundary(selection.Get(0)) {
-			documentSource = true
+	preserveClipboardCSSSemantics(doc.Find("body").Get(0))
+	doc.Find("[style]").Each(func(_ int, selection *goquery.Selection) {
+		style, _ := selection.Attr("style")
+		style = filterClipboardStyle(style, clipboardTextStyleProperties)
+		if strings.TrimSpace(style) == "" {
+			selection.RemoveAttr("style")
+		} else {
+			selection.SetAttr("style", style)
 		}
 	})
-	changed := false
-	if !documentSource {
-		doc.Find("[style]").Each(func(_ int, selection *goquery.Selection) {
-			decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(selection.Get(0)))
-			changed = changed || clipboardTransparentColor.MatchString(decl["background-color"])
-		})
-		// 网页链接自身的外观交给编辑器，子元素中的显式格式及语义标签继续保留。
-		doc.Find("a[href]").Each(func(_ int, selection *goquery.Selection) {
-			n := selection.Get(0)
-			for i := range n.Attr {
-				if n.Attr[i].Key != "style" {
-					continue
-				}
-				style := n.Attr[i].Val
-				remove := map[string]bool{"color": true, "background-color": true, "font-family": true, "font-size": true}
-				decl := parse.HTMLStyleDeclarations(style)
-				var retained strings.Builder
-				for _, key := range []string{"text-decoration", "text-decoration-line"} {
-					var parts []string
-					for _, part := range strings.Fields(decl[key]) {
-						if strings.EqualFold(part, "underline") {
-							remove[key] = true
-						} else {
-							parts = append(parts, part)
-						}
-					}
-					if remove[key] && len(parts) > 0 {
-						retained.WriteString(key + ": " + strings.Join(parts, " ") + ";")
-					}
-				}
-				n.Attr[i].Val = filterClipboardStyle(style, remove) + retained.String()
-				changed = changed || n.Attr[i].Val != style
-			}
-		})
-		// 语义元素由编辑器提供基础外观，内部独立设置的强调样式继续保留。
-		doc.Find("h1,h2,h3,h4,h5,h6,pre,code,blockquote,ul,ol,li,table,thead,tbody,tfoot,tr,th,td").Each(func(_ int, selection *goquery.Selection) {
-			n := selection.Get(0)
-			remove := map[string]bool{"font-family": true, "font-size": true}
-			switch n.Data {
-			case "table", "thead", "tbody", "tfoot", "tr", "th", "td":
-				// 表格颜色可能表达状态，仅由正文主题基准规则清理相同颜色。
-			default:
-				remove["color"], remove["background-color"] = true, true
-			}
-			changed = filterClipboardNodeStyle(n, remove) || changed
-			if n.Data == "pre" || n.Data == "code" {
-				// 代码的空白、语言和文本由语义结构保留，着色交给编辑器的代码渲染器。
-				selection.Find("[style]").Each(func(_ int, child *goquery.Selection) {
-					changed = filterClipboardNodeStyle(child.Get(0), remove) || changed
-				})
-			}
-		})
-	}
-	var roots []*nethtml.Node
-	var baseline map[string]string
-	ambiguous := false
-	var collect func(*nethtml.Node)
-	collect = func(n *nethtml.Node) {
-		if n.Type == nethtml.ElementNode {
-			switch n.Data {
-			case "p", "div", "span", "body":
-				decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(n))
-				if isBrowserClipboardTheme(decl) && (!documentSource || isClipboardDocumentThemeWrapper(n)) {
-					if baseline == nil {
-						baseline = decl
-					} else {
-						for _, key := range clipboardThemeProperties {
-							if decl[key] != baseline[key] {
-								ambiguous = true
-							}
-						}
-					}
-					roots = append(roots, n)
-					return
-				}
-			}
-			// 文档正文内部的统一字体、字号也可能是作者主动设置，不能用重复次数推断默认格式。
-			if documentSource && isClipboardDocumentBoundary(n) {
-				return
-			}
-		}
-		for child := n.FirstChild; child != nil; child = child.NextSibling {
-			collect(child)
-		}
-	}
-	collect(doc.Find("body").Get(0))
-	if len(roots) == 0 || ambiguous {
-		roots = nil
-		if !changed {
-			return dom
-		}
-	}
-	var clean func(*nethtml.Node, map[string]string)
-	clean = func(n *nethtml.Node, inherited map[string]string) {
-		decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(n))
-		effective := make(map[string]string, len(clipboardThemeProperties))
-		remove := map[string]bool{}
-		var resets strings.Builder
-		for _, key := range clipboardThemeProperties {
-			effective[key] = inherited[key]
-			if value := decl[key]; value != "" && value != "inherit" && value != "unset" {
-				effective[key] = value
-				if value == baseline[key] {
-					remove[key] = true
-					// 局部格式之后恢复正文基准时，显式重置，避免继续继承局部格式。
-					if inherited[key] != "" && inherited[key] != baseline[key] {
-						resets.WriteString(key + ": initial;")
-					}
-				}
-			}
-		}
-		for i := range n.Attr {
-			if n.Attr[i].Key == "style" && len(remove) > 0 {
-				n.Attr[i].Val = filterClipboardStyle(n.Attr[i].Val, remove) + resets.String()
-			}
-		}
-		// 文档来源只清理外层浏览器包装；即使子元素与主题同色，也保留其显式格式。
-		if documentSource {
-			return
-		}
-		for child := n.FirstChild; child != nil; child = child.NextSibling {
-			clean(child, effective)
-		}
-	}
-	for _, root := range roots {
-		clean(root, nil)
-	}
-	if !documentSource {
-		// 透明背景不生成文本样式；存在祖先背景时保留重置语义，避免被文本样式继承重新着色。
-		doc.Find("[style]").Each(func(_ int, selection *goquery.Selection) {
-			n := selection.Get(0)
-			for i := range n.Attr {
-				if n.Attr[i].Key != "style" {
-					continue
-				}
-				decl := parse.HTMLStyleDeclarations(n.Attr[i].Val)
-				if !clipboardTransparentColor.MatchString(decl["background-color"]) {
-					continue
-				}
-				n.Attr[i].Val = filterClipboardStyle(n.Attr[i].Val, map[string]bool{"background-color": true})
-				for parent := n.Parent; parent != nil; parent = parent.Parent {
-					if parse.HTMLStyleDeclarations(clipboardNodeStyle(parent))["background-color"] != "" {
-						n.Attr[i].Val += "background-color: initial;"
-						break
-					}
-				}
-			}
-		})
-	}
+	// font 的外观属性与对应 CSS 属性采用相同的匹配规则。
+	doc.Find("font").RemoveAttr("color").RemoveAttr("face").RemoveAttr("size")
 	ret, err := doc.Find("body").Html()
 	if err != nil {
 		return dom
@@ -203,66 +67,108 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 	return ret
 }
 
-func filterClipboardNodeStyle(n *nethtml.Node, remove map[string]bool) bool {
-	for i := range n.Attr {
-		if n.Attr[i].Key == "style" {
-			style := n.Attr[i].Val
-			n.Attr[i].Val = filterClipboardStyle(style, remove)
-			return n.Attr[i].Val != style
+func preserveClipboardCSSSemantics(root *nethtml.Node) {
+	if root == nil {
+		return
+	}
+	var texts []*nethtml.Node
+	var collect func(*nethtml.Node)
+	collect = func(n *nethtml.Node) {
+		if n.Type == nethtml.TextNode && strings.TrimSpace(n.Data) != "" {
+			texts = append(texts, n)
+		}
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			collect(child)
 		}
 	}
-	return false
-}
-
-func isClipboardDocumentBoundary(n *nethtml.Node) bool {
-	for _, attr := range n.Attr {
-		key, value := strings.ToLower(attr.Key), strings.ToLower(attr.Val)
-		if strings.HasPrefix(key, "data-lark") || strings.Contains(value, "urn:schemas-microsoft-com:office") {
-			return true
-		}
-		if key == "style" && strings.Contains(value, "mso-") {
-			return true
-		}
-		if key == "class" {
-			for _, class := range strings.Fields(value) {
-				if strings.HasPrefix(class, "mso") {
-					return true
+	collect(root)
+	for _, text := range texts {
+		weight, fontStyle := "", ""
+		underline, strike := false, false
+		strongTag, emTag, underlineTag, strikeTag, ignored := false, false, false, false, false
+		for n := text.Parent; n != nil; n = n.Parent {
+			switch n.Data {
+			case "script", "style":
+				ignored = true
+			case "strong", "b":
+				strongTag = true
+			case "em", "i":
+				emTag = true
+			case "u":
+				underlineTag = true
+			case "s", "del", "strike":
+				strikeTag = true
+			}
+			decl := parse.HTMLStyleDeclarations(clipboardNodeStyle(n))
+			font := strings.ToLower(decl["font"])
+			if weight == "" {
+				weight = strings.ToLower(decl["font-weight"])
+				if weight == "" && font != "" {
+					weight = font
 				}
 			}
+			if fontStyle == "" {
+				fontStyle = strings.ToLower(decl["font-style"])
+				if fontStyle == "" && font != "" {
+					fontStyle = font
+				}
+			}
+			decoration := strings.ToLower(decl["text-decoration"] + " " + decl["text-decoration-line"])
+			underline = underline || n.Data != "a" && strings.Contains(decoration, "underline")
+			strike = strike || strings.Contains(decoration, "line-through")
+		}
+		if ignored {
+			continue
+		}
+		var tags []string
+		if !strongTag && isClipboardCSSBold(weight) {
+			tags = append(tags, "strong")
+		}
+		if !emTag && (strings.Contains(fontStyle, "italic") || strings.Contains(fontStyle, "oblique")) {
+			tags = append(tags, "em")
+		}
+		if !underlineTag && underline {
+			tags = append(tags, "u")
+		}
+		if !strikeTag && strike {
+			tags = append(tags, "s")
+		}
+		wrapClipboardTextNode(text, tags)
+	}
+}
+
+func isClipboardCSSBold(value string) bool {
+	for _, word := range strings.FieldsFunc(value, func(r rune) bool {
+		return r == ' ' || r == '/' || r == ','
+	}) {
+		if word == "bold" || word == "bolder" {
+			return true
+		}
+		weight, err := strconv.Atoi(word)
+		if err == nil && weight >= 600 && weight <= 1000 {
+			return true
 		}
 	}
 	return false
 }
 
-func isClipboardDocumentThemeWrapper(n *nethtml.Node) bool {
-	if n.Data != "div" && n.Data != "body" {
-		return false
+func wrapClipboardTextNode(text *nethtml.Node, tags []string) {
+	if len(tags) == 0 || text.Parent == nil {
+		return
 	}
-	if isClipboardDocumentBoundary(n) {
-		// 飞书仅允许根容器参与浏览器样式识别；正文节点和 Office 样式节点不作为主题基准。
-		larkRoot := false
-		for _, attr := range n.Attr {
-			if attr.Key == "data-lark-html-role" && attr.Val == "root" {
-				larkRoot = true
-			}
-			if attr.Key == "style" && strings.Contains(strings.ToLower(attr.Val), "mso-") {
-				return false
-			}
-		}
-		if !larkRoot {
-			return false
-		}
+	parent, next := text.Parent, text.NextSibling
+	parent.RemoveChild(text)
+	var wrapped = text
+	for _, tag := range tags {
+		wrapper := &nethtml.Node{Type: nethtml.ElementNode, Data: tag}
+		wrapper.AppendChild(wrapped)
+		wrapped = wrapper
 	}
-	hasContent := false
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		if child.Type == nethtml.TextNode && strings.TrimSpace(child.Data) != "" {
-			return false
-		}
-		if child.Type == nethtml.ElementNode {
-			hasContent = true
-		}
+	if next == nil {
+		parent.AppendChild(wrapped)
+	} else {
+		parent.InsertBefore(wrapped, next)
 	}
-	return hasContent
 }
 
 func clipboardNodeStyle(n *nethtml.Node) string {
@@ -272,16 +178,6 @@ func clipboardNodeStyle(n *nethtml.Node) string {
 		}
 	}
 	return ""
-}
-
-func isBrowserClipboardTheme(decl map[string]string) bool {
-	// 同时要求浏览器序列化特征及完整正文基准，避免把普通手写样式识别为页面主题。
-	for _, key := range []string{"-webkit-text-stroke-width", "font-variant-caps", "letter-spacing", "orphans", "widows", "text-indent", "text-transform", "word-spacing", "white-space", "color", "background-color", "font-family", "font-size"} {
-		if decl[key] == "" {
-			return false
-		}
-	}
-	return true
 }
 
 // filterClipboardStyle 仅移除目标声明，原样保留其他声明的优先级、引号和函数内容。

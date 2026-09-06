@@ -1,4 +1,6 @@
 {
+	"pasteAndMatchElements": "Öğeleri eşleştirerek yapıştır",
+	"pasteAndKeepSourceFormat": "Kaynak biçimlendirmesini koruyarak yapıştır",
 	"templatePackageMoveTip": "Şablon paketi klasörleri yeniden adlandırılamaz veya taşınamaz",
 	"avDragRemoveSorts": "Bu taşıma mevcut sıralama kurallarıyla çelişiyor. Bu görünümün sıralama kuralları kaldırılsın ve sürükleme sonrasındaki tam sıra özel sıra olarak kaydedilsin mi?",
 	"templateManager": "Şablon yöneticisi",

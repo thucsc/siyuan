@@ -1,4 +1,6 @@
 {
+	"pasteAndMatchElements": "Pegar y hacer coincidir elementos",
+	"pasteAndKeepSourceFormat": "Pegar y conservar el formato de origen",
 	"templatePackageMoveTip": "Las carpetas de paquetes de plantillas no se pueden renombrar ni mover",
 	"avDragRemoveSorts": "Este movimiento entra en conflicto con las reglas de ordenación actuales. ¿Quieres eliminar las reglas de ordenación de esta vista y guardar el orden completo resultante del arrastre como orden personalizado?",
 	"templateManager": "Gestor de plantillas",

@@ -43,7 +43,7 @@ func TestHTML2BlockDOMQuotedFontFamily(t *testing.T) {
 				input = "<table><tr>" + input + "<td>cell</td></tr></table>"
 			}
 			body, err := json.Marshal(map[string]any{
-				"dom": input, "skipBase64Assets": true, "skipInlineSVGAssets": true,
+				"dom": input, "skipBase64Assets": true, "skipInlineSVGAssets": true, "preserveSourceFormat": true,
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -86,5 +86,41 @@ func TestHTML2BlockDOMQuotedFontFamily(t *testing.T) {
 				response.Data = engine.SpinBlockDOM(response.Data)
 			}
 		})
+	}
+}
+
+func TestHTML2BlockDOMMatchesElementsByDefault(t *testing.T) {
+	originalConf := model.Conf
+	model.Conf = model.NewAppConf()
+	model.Conf.System = &conf.System{}
+	t.Cleanup(func() { model.Conf = originalConf })
+	gin.SetMode(gin.TestMode)
+	input := `<h2 style="color:gray;font-family:Arial;font-size:20px"><span style="font-weight:bold">heading</span></h2>` +
+		`<p><a href="https://example.com" style="color:blue;text-decoration:underline">link</a></p>`
+	body, err := json.Marshal(map[string]any{
+		"dom": input, "skipBase64Assets": true, "skipInlineSVGAssets": true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	recorder := httptest.NewRecorder()
+	context, _ := gin.CreateTestContext(recorder)
+	context.Request = httptest.NewRequest(http.MethodPost, "/api/lute/html2BlockDOM", strings.NewReader(string(body)))
+	context.Request.Header.Set("Content-Type", "application/json")
+	html2BlockDOM(context)
+	var response struct {
+		Code int
+		Data string
+	}
+	if err = json.Unmarshal(recorder.Body.Bytes(), &response); err != nil || response.Code != 0 {
+		t.Fatalf("conversion failed: %s, %v", recorder.Body.String(), err)
+	}
+	for _, expected := range []string{`data-type="NodeHeading"`, `data-type="strong"`, `data-type="a"`, `data-href="https://example.com"`} {
+		if !strings.Contains(response.Data, expected) {
+			t.Errorf("missing %q: %s", expected, response.Data)
+		}
+	}
+	if strings.Contains(response.Data, "style=") || strings.Contains(response.Data, `data-type="a u"`) {
+		t.Fatalf("source appearance survived: %s", response.Data)
 	}
 }

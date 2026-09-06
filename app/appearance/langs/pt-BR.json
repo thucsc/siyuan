@@ -1,4 +1,6 @@
 {
+	"pasteAndMatchElements": "Colar e corresponder elementos",
+	"pasteAndKeepSourceFormat": "Colar mantendo a formatação original",
 	"templatePackageMoveTip": "As pastas de pacotes de modelos não podem ser renomeadas ou movidas",
 	"avDragRemoveSorts": "Este movimento entra em conflito com as regras de ordenação atuais. Remover as regras de ordenação desta visualização e salvar a ordem completa após arrastar como ordem personalizada?",
 	"templateManager": "Gerenciador de modelos",

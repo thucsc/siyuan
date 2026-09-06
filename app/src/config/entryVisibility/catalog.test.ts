@@ -311,6 +311,16 @@ test("toolbar catalog follows the default toolbar declaration", () => {
     assert.equal(children.every((item) => item.simple), true);
 });
 
+test("inline text paste entries follow the menu order", () => {
+    const keys = getEntryCatalogChildren("inline.text").map((item) => item.key);
+    const pasteIndex = keys.indexOf("paste");
+    assert.deepEqual(keys.slice(pasteIndex, pasteIndex + 3), [
+        "paste",
+        "pasteAndKeepSourceFormat",
+        "pasteAsPlainText",
+    ]);
+});
+
 test("toolbar catalog follows plugin insertion slots and removes unloaded plugin entries", () => {
     const defaults = getDefaultToolbar(false).map((item) => typeof item === "string" ? {name: item} : item);
     const pluginItem = {name: "shared.item"};

@@ -484,6 +484,7 @@ interface IClipboardData {
     siyuanHTML?: string,
     files?: FileList | DataTransferItemList | File[],
     localFiles?: ILocalFiles[],
+    preserveSourceFormat?: boolean,
 }
 
 interface IRefDefs {
