@@ -1092,7 +1092,7 @@ func getBlockBreadcrumbChildren(c *gin.Context) {
 	if limitArg := arg["limit"]; nil != limitArg {
 		limit = int(limitArg.(float64))
 	}
-	boxID := encryptedNotebookFromArg(arg)
+	boxID, _ := arg["notebook"].(string)
 	if !holdBlockRequest(c, ret, boxID, arg) {
 		return
 	}

@@ -22,12 +22,14 @@ import {getFileTreeIconHTML} from "../../emoji/fileTreeIcon";
 import {syncDocTitleIAL} from "../../protyle/util/docTitleIAL";
 import {canBatchConvertHeadings, showHeadingBatchDialog} from "../../protyle/util/headingBatch";
 import {bindMousePointerTouchBridge, isMousePointerTouchEvent} from "../util/mousePointerTouchBridge";
+import {waitForPendingTransactions} from "../../protyle/util/transactionQueue";
 import {
     operationsMayChangeOutline,
     transactionsMayChangeRootHeadingNumberSetting
 } from "../../protyle/util/headingNumberCore";
 
 export class MobileOutline extends Model {
+    private currentRequestID = 0;
     public tree: Tree;
     public element: HTMLElement;
     public blockId: string;
@@ -442,7 +444,8 @@ export class MobileOutline extends Model {
         }
     }
 
-    public setCurrent(nodeElement: HTMLElement) {
+    public async setCurrent(nodeElement: HTMLElement) {
+        const requestID = ++this.currentRequestID;
         if (!nodeElement) {
             return;
         }
@@ -470,7 +473,19 @@ export class MobileOutline extends Model {
                 if (mobileProtyle && mobileProtyle.block.rootID === this.blockId) {
                     breadcrumbParam.notebook = mobileProtyle.notebookId;
                 }
+                const blockID = this.blockId;
+                const isCurrent = () => requestID === this.currentRequestID && blockID === this.blockId &&
+                    nodeElement.isConnected;
+                if (mobileProtyle && mobileProtyle.block.rootID === blockID) {
+                    await waitForPendingTransactions(mobileProtyle);
+                }
+                if (!isCurrent()) {
+                    return;
+                }
                 fetchPost("/api/block/getBlockBreadcrumb", breadcrumbParam, (response) => {
+                    if (!isCurrent()) {
+                        return;
+                    }
                     response.data.reverse().find((item: IBreadcrumb) => {
                         if (item.type === "NodeHeading") {
                             this.setCurrentById(item.id);
