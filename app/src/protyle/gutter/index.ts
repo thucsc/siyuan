@@ -500,7 +500,7 @@ export class Gutter {
                     return;
                 }
                 hideElements(["gutter"], protyle);
-                countBlockWord([], protyle.block.rootID);
+                countBlockWord([], protyle);
                 insertEmptyBlock(protyle, buttonElement.dataset.type === "gutterPlusBefore" ? "beforebegin" : "afterend", nodeElement);
                 return;
             }
@@ -1639,7 +1639,7 @@ export class Gutter {
         const turnIntoSubmenu: IMenu[] = [];
         hideElements(["select"], protyle);
         nodeElement.classList.add("protyle-wysiwyg--select");
-        countBlockWord([id], protyle.block.rootID);
+        countBlockWord([id], protyle);
         if (isMobile() && !protyle.toolbar.isMultiSelectMode()) {
             window.siyuan.menus.menu.append(new MenuItem({
                 id: "multiSelect",
@@ -2146,7 +2146,7 @@ export class Gutter {
                     accelerator: window.siyuan.config.keymap.editor.list.prependListItem.custom,
                     click() {
                         hideElements(["select"], protyle);
-                        countBlockWord([], protyle.block.rootID);
+                        countBlockWord([], protyle);
                         void prependListItem(protyle, nodeElement as HTMLElement, range);
                     }
                 }, {
@@ -2156,7 +2156,7 @@ export class Gutter {
                     accelerator: window.siyuan.config.keymap.editor.list.appendListItem.custom,
                     click() {
                         hideElements(["select"], protyle);
-                        countBlockWord([], protyle.block.rootID);
+                        countBlockWord([], protyle);
                         void appendListItem(protyle, nodeElement as HTMLElement, range);
                     }
                 });
@@ -2792,7 +2792,7 @@ export class Gutter {
                 accelerator: window.siyuan.config.keymap.editor.general.insertBefore.custom,
                 click() {
                     hideElements(["select"], protyle);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                     insertEmptyBlock(protyle, "beforebegin", nodeElement);
                 }
             }).element);
@@ -2803,7 +2803,7 @@ export class Gutter {
                 accelerator: window.siyuan.config.keymap.editor.general.insertAfter.custom,
                 click() {
                     hideElements(["select"], protyle);
-                    countBlockWord([], protyle.block.rootID);
+                    countBlockWord([], protyle);
                     insertEmptyBlock(protyle, "afterend", nodeElement);
                 }
             }).element);
@@ -2816,7 +2816,7 @@ export class Gutter {
                     accelerator: window.siyuan.config.keymap.editor.general.insertSuperBlockLeft.custom,
                     click() {
                         hideElements(["select"], protyle);
-                        countBlockWord([], protyle.block.rootID);
+                        countBlockWord([], protyle);
                         insertEmptySuperBlockColumn(protyle, "left", nodeElement);
                     }
                 }).element);
@@ -2827,7 +2827,7 @@ export class Gutter {
                     accelerator: window.siyuan.config.keymap.editor.general.insertSuperBlockRight.custom,
                     click() {
                         hideElements(["select"], protyle);
-                        countBlockWord([], protyle.block.rootID);
+                        countBlockWord([], protyle);
                         insertEmptySuperBlockColumn(protyle, "right", nodeElement);
                     }
                 }).element);
