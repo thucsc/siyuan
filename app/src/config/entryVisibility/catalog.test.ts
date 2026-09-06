@@ -623,6 +623,16 @@ test("callout presets stay aligned across block menu scopes", () => {
     });
 });
 
+test("heading conversions follow list conversions across block menu scopes", () => {
+    const headingKeys = ["heading1", "heading2", "heading3", "heading4", "heading5", "heading6"];
+    ["gutter.single.turnInto", "gutter.multi.turnInto"].forEach((path) => {
+        const keys = getEntryCatalogChildren(path).map(item => item.key);
+        const headingIndex = keys.indexOf("heading1");
+        assert.equal(headingIndex, keys.indexOf("check") + 1);
+        assert.deepEqual(keys.slice(headingIndex, headingIndex + headingKeys.length), headingKeys);
+    });
+});
+
 test("tab conversion belongs to the single block conversion menu", () => {
     const keys = getEntryCatalogChildren("gutter.single.turnInto").map(item => item.key);
     assert.equal(keys[keys.indexOf("tabs") - 1], "calloutCustom");
@@ -630,7 +640,7 @@ test("tab conversion belongs to the single block conversion menu", () => {
     assert.equal(getEntryCatalogNode("gutter.single.turnInto.tabs")?.simple, true);
     assert.equal(getEntryCatalogNode("gutter.single.turnInto.tabs")?.type, "entry");
     assert.equal(getEntryCatalogNode("gutter.multi.turnInto.tabs"), undefined);
-    assert.equal(keys[keys.indexOf("superBlock") - 1], "check");
+    assert.equal(keys[keys.indexOf("superBlock") - 1], "heading6");
     assert.equal(keys[keys.indexOf("superBlock") + 1], "code");
     assert.equal(getEntryCatalogNode("gutter.single.turnInto.superBlock")?.simple, true);
     assert.equal(getEntryCatalogNode("gutter.single.turnInto.superBlock")?.type, "entry");
