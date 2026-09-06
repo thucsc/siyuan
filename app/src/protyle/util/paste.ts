@@ -26,7 +26,7 @@ import {remapTabsDOMIDs, wrapPastedTabItems} from "./tabsCopy";
 import {getTabItems, getTabTitle} from "../render/tabsRender";
 import {removeZWJ} from "./normalizeText";
 import {base64ToURL, showBase64ImageSizeLimit} from "../upload/base64";
-import {applyHTMLLocalAssetPaths, collectHTMLLocalAssets, removeHTMLLocalAssetPaths} from "../upload/htmlLocalAssets";
+import {applyHTMLLocalAssetPaths, collectHTMLLocalAssets, getHTMLAssetSourceURL, removeHTMLLocalAssetPaths, resolveHTMLAssetURLs} from "../upload/htmlLocalAssets";
 import {
     applyHTMLEmbeddedAssetPaths,
     collectHTMLEmbeddedAssets,
@@ -751,6 +751,8 @@ export const paste = async (protyle: IProtyle, event: (ClipboardEvent | DragEven
     if (!siyuanHTML) {
         // process word
         const doc = new DOMParser().parseFromString(textHTML, "text/html");
+        // 在移除文档头之前解析来源，避免将网页根路径当成本地绝对路径。
+        resolveHTMLAssetURLs(doc, getHTMLAssetSourceURL(textHTML, doc.querySelector("base[href]")?.getAttribute("href")));
         if (doc.body && doc.body.innerHTML) {
             textHTML = doc.body.innerHTML;
         }
