@@ -272,3 +272,89 @@ func TestBrowserClipboardTransparentBackground(t *testing.T) {
 		t.Errorf("transparent text inherited a background: %s", output)
 	}
 }
+
+func TestBrowserClipboardSemanticAppearance(t *testing.T) {
+	style := `color: white; background-color: black; font-family: Arial; font-size: 14px;`
+	for _, tc := range []struct {
+		tag, content, blockType string
+	}{
+		{"h2", "heading", "NodeHeading"},
+		{"blockquote", "<p>quote</p>", "NodeBlockquote"},
+		{"ul", "<li>first<ul><li>nested</li></ul></li>", "NodeList"},
+		{"ol", "<li>first</li><li>second</li>", "NodeList"},
+		{"code", "inline", "NodeParagraph"},
+		{"pre", "<code class=\"language-go\">  first\n\tsecond\n</code>", "NodeCodeBlock"},
+	} {
+		t.Run(tc.tag, func(t *testing.T) {
+			input := "<" + tc.tag + " style='" + style + "'>" + tc.content + "</" + tc.tag + ">"
+			output := normalizeBrowserClipboardStyle(input, false)
+			before, _ := goquery.NewDocumentFromReader(strings.NewReader(input))
+			after, _ := goquery.NewDocumentFromReader(strings.NewReader(output))
+			want, _ := before.Find(tc.tag).First().Html()
+			got, _ := after.Find(tc.tag).First().Html()
+			if got != want {
+				t.Errorf("semantic content changed: want %q, got %q", want, got)
+			}
+			lute := util.NewLute()
+			lute.SetHTMLTag2TextMark(true)
+			blockDOM := lute.HTML2BlockDOM(output)
+			if !strings.Contains(blockDOM, tc.blockType) {
+				t.Errorf("semantic type lost: %s", blockDOM)
+			}
+			for _, property := range clipboardThemeProperties {
+				if strings.Contains(blockDOM, property+":") {
+					t.Errorf("default style %s survived: %s", property, blockDOM)
+				}
+			}
+			if again := normalizeBrowserClipboardStyle(output, false); again != output {
+				t.Fatal("semantic normalization is not idempotent")
+			}
+		})
+	}
+}
+
+func TestBrowserClipboardSemanticLocalFormatting(t *testing.T) {
+	input := `<h2 style="color:black;font-size:24px"><strong>heading</strong><span style="color:red;font-size:30px">emphasis</span></h2>` +
+		`<blockquote style="color:gray"><p><u>underline</u><mark>highlight</mark></p></blockquote>` +
+		`<ol start="3"><li style="font-family:Arial;color:black"><span style="background:yellow">item</span></li></ol>`
+	output := normalizeBrowserClipboardStyle(input, false)
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(output))
+	if start, _ := doc.Find("ol").Attr("start"); start != "3" || doc.Find("strong,u,mark").Length() != 3 {
+		t.Fatal("semantic attributes or emphasis lost: " + output)
+	}
+	for _, want := range []string{"color:red", "font-size:30px", "background:yellow"} {
+		if !strings.Contains(output, want) {
+			t.Errorf("local style %s lost: %s", want, output)
+		}
+	}
+	for _, wrapper := range []string{`<div data-lark-html-role="root">`, `<div class="MsoNormal">`, `<div data-type="NodeParagraph">`} {
+		protected := wrapper + input + `</div>`
+		if actual := normalizeBrowserClipboardStyle(protected, false); actual != protected {
+			t.Error("document semantic formatting changed: " + actual)
+		}
+	}
+	if actual := normalizeBrowserClipboardStyle(input, true); actual != input {
+		t.Error("Office clipboard semantic formatting changed: " + actual)
+	}
+}
+
+func TestBrowserClipboardCodeAndTable(t *testing.T) {
+	code := "<pre style='background:black'><code class='language-go' style='color:white'><span style='color:red'>  first</span>\n\tsecond\n</code></pre>"
+	output := normalizeBrowserClipboardStyle(code, false)
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(output))
+	if doc.Find("code").Text() != "  first\n\tsecond\n" {
+		t.Fatal("code whitespace changed: " + output)
+	}
+	if language, _ := doc.Find("code").Attr("class"); language != "language-go" || strings.Contains(output, "color:") {
+		t.Fatal("code language or coloring changed incorrectly: " + output)
+	}
+	table := `<table style="font-family:Arial"><thead><tr><th style="font-size:14px;background:gray">header</th></tr></thead><tbody><tr><td rowspan="2" style="color:red;background:yellow;font-size:14px">status</td></tr><tr></tr></tbody></table>`
+	output = normalizeBrowserClipboardStyle(table, false)
+	doc, _ = goquery.NewDocumentFromReader(strings.NewReader(output))
+	if rowspan, _ := doc.Find("td").Attr("rowspan"); rowspan != "2" || doc.Find("th").Text() != "header" {
+		t.Fatal("table structure lost: " + output)
+	}
+	if strings.Contains(output, "font-family") || strings.Contains(output, "font-size") || !strings.Contains(output, "color:red;background:yellow") || !strings.Contains(output, "background:gray") {
+		t.Fatal("table appearance changed incorrectly: " + output)
+	}
+}

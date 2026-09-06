@@ -81,6 +81,24 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 				changed = changed || n.Attr[i].Val != style
 			}
 		})
+		// 语义元素由编辑器提供基础外观，内部独立设置的强调样式继续保留。
+		doc.Find("h1,h2,h3,h4,h5,h6,pre,code,blockquote,ul,ol,li,table,thead,tbody,tfoot,tr,th,td").Each(func(_ int, selection *goquery.Selection) {
+			n := selection.Get(0)
+			remove := map[string]bool{"font-family": true, "font-size": true}
+			switch n.Data {
+			case "table", "thead", "tbody", "tfoot", "tr", "th", "td":
+				// 表格颜色可能表达状态，仅由正文主题基准规则清理相同颜色。
+			default:
+				remove["color"], remove["background-color"] = true, true
+			}
+			changed = filterClipboardNodeStyle(n, remove) || changed
+			if n.Data == "pre" || n.Data == "code" {
+				// 代码的空白、语言和文本由语义结构保留，着色交给编辑器的代码渲染器。
+				selection.Find("[style]").Each(func(_ int, child *goquery.Selection) {
+					changed = filterClipboardNodeStyle(child.Get(0), remove) || changed
+				})
+			}
+		})
 	}
 	var roots []*nethtml.Node
 	var baseline map[string]string
@@ -183,6 +201,17 @@ func normalizeBrowserClipboardStyle(dom string, documentSource bool) string {
 		return dom
 	}
 	return ret
+}
+
+func filterClipboardNodeStyle(n *nethtml.Node, remove map[string]bool) bool {
+	for i := range n.Attr {
+		if n.Attr[i].Key == "style" {
+			style := n.Attr[i].Val
+			n.Attr[i].Val = filterClipboardStyle(style, remove)
+			return n.Attr[i].Val != style
+		}
+	}
+	return false
 }
 
 func isClipboardDocumentBoundary(n *nethtml.Node) bool {
