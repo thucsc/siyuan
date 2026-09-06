@@ -848,7 +848,7 @@ export const contentMenu = (protyle: IProtyle, nodeElement: Element) => {
     if (!protyle.disabled && !captionElement) {
         window.siyuan.menus.menu.append(new MenuItem({
             id: "paste",
-            label: window.siyuan.languages.pasteAndMatchElements,
+            label: window.siyuan.languages.paste,
             icon: "iconPaste",
             accelerator: "⌘V",
             async click() {

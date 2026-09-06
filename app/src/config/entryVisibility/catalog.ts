@@ -817,7 +817,7 @@ export const entryCatalog: IEntryCatalogSection[] = [
             node("cut", lang("cut")),
             node("delete", lang("delete")),
             separator("separator_paste"),
-            node("paste", lang("pasteAndMatchElements")),
+            node("paste", lang("paste")),
             node("pasteAndKeepSourceFormat", lang("pasteAndKeepSourceFormat")),
             node("pasteAsPlainText", lang("pasteAsPlainText")),
             node("pasteEscaped", lang("pasteEscaped"), false),

@@ -1,5 +1,4 @@
 {
-	"pasteAndMatchElements": "Paste and match elements",
 	"pasteAndKeepSourceFormat": "Paste and keep source formatting",
 	"templatePackageMoveTip": "Template package folders cannot be renamed or moved",
 	"avDragRemoveSorts": "This move conflicts with the current sort rules. Remove the sort rules for this view and save the complete order after dragging as the custom order?",

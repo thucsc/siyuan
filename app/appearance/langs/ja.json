@@ -1,5 +1,4 @@
 {
-	"pasteAndMatchElements": "要素に合わせて貼り付け",
 	"pasteAndKeepSourceFormat": "元の書式を保持して貼り付け",
 	"templatePackageMoveTip": "テンプレートパッケージのフォルダーは名前の変更や移動ができません",
 	"avDragRemoveSorts": "この移動は現在の並べ替えルールと競合します。このビューの並べ替えルールを削除し、ドラッグ後の全項目の順序をカスタム順序として保存しますか？",
