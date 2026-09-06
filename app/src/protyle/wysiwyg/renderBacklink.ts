@@ -32,7 +32,6 @@ interface IBacklinkDOMRecord {
     revision: string,
     anchor: HTMLElement,
     targets: IBacklinkAVTarget[],
-    selections: Map<string, string>,
 }
 
 const backlinkDOMRecords = new WeakMap<IProtyle, Map<string, IBacklinkDOMRecord>>();
@@ -65,7 +64,6 @@ const createBacklinkDOMRecord = (item: IBacklinkData, index: number, id: string)
             revision: item.revision || "",
             anchor: nodes[0] as HTMLElement,
             targets: item.attributeViewTargets || [],
-            selections: new Map<string, string>(),
         },
         nodes,
     };
@@ -79,7 +77,7 @@ const renderBacklinkDOMNodes = (protyle: IProtyle, nodes: Node[], record: IBackl
         improveBreadcrumbAppearance(item);
         processRender(item);
         highlightRender(item);
-        prepareBacklinkAV(item, protyle, record.targets, record.selections, scrollState);
+        prepareBacklinkAV(item, record.targets, scrollState);
         await avRender(item, protyle);
         blockRender(protyle, item);
     }));
@@ -118,7 +116,6 @@ export const renderBacklink = (protyle: IProtyle, backlinkData: IBacklinkData[])
             clearViewFoldDefaults(protyle, id);
             const created = createBacklinkDOMRecord(item, index, id);
             if (record) {
-                created.record.selections = record.selections;
                 created.nodes.forEach(node => element.insertBefore(node, record.anchor));
                 removeBacklinkDOMRecord(record);
             } else {
@@ -227,7 +224,7 @@ export const loadBreadcrumb = (protyle: IProtyle, element: HTMLElement) => {
         const record = backlinkDOMRecords.get(protyle)?.get(element.parentElement.dataset.backlinkId);
         getBacklinkDOMNodes(element.parentElement).forEach(node => {
             if (node instanceof HTMLElement) {
-                prepareBacklinkAV(node, protyle, record?.targets || [], record?.selections || new Map());
+                prepareBacklinkAV(node, record?.targets || []);
             }
         });
         avRender(element.parentElement.parentElement, protyle);
