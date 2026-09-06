@@ -449,6 +449,7 @@ func ServeAPI(ginServer *gin.Engine) {
 	ginServer.Handle("POST", "/api/convert/pandoc", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, pandoc)
 
 	ginServer.Handle("POST", "/api/template/render", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, renderTemplate)
+	ginServer.Handle("POST", "/api/template/manage", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, manageTemplateFiles)
 	ginServer.Handle("POST", "/api/template/docSaveAsTemplate", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, docSaveAsTemplate)
 	ginServer.Handle("POST", "/api/template/renderSprig", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, renderSprig)
 

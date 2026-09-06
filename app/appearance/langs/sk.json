@@ -1,4 +1,10 @@
 {
+	"templateManager": "Správca šablón",
+	"templateSource": "Zdrojový kód šablóny",
+	"templatePreview": "Náhľad šablóny",
+	"templateContext": "Dokument náhľadu",
+	"templateNewFolder": "Nový priečinok",
+	"templateDeleteTip": "Odstrániť túto položku a celý jej obsah? Odstránené súbory sa uchovajú v data/templates/.trash na obnovenie.",
 	"task": "Úloha",
 	"customTaskStatus": "Vlastný stav úlohy",
 	"imageViewerPlay": "Spustiť prezentáciu",

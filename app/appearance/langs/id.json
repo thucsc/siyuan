@@ -1,4 +1,10 @@
 {
+	"templateManager": "Pengelola templat",
+	"templateSource": "Sumber templat",
+	"templatePreview": "Pratinjau templat",
+	"templateContext": "Dokumen pratinjau",
+	"templateNewFolder": "Folder baru",
+	"templateDeleteTip": "Hapus item ini beserta seluruh isinya? Berkas yang dihapus disimpan di data/templates/.trash untuk dipulihkan.",
 	"task": "Tugas",
 	"customTaskStatus": "Status tugas kustom",
 	"imageViewerPlay": "Putar tayangan slide",

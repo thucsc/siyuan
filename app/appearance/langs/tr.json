@@ -1,4 +1,10 @@
 {
+	"templateManager": "Şablon yöneticisi",
+	"templateSource": "Şablon kaynağı",
+	"templatePreview": "Şablonu önizle",
+	"templateContext": "Önizleme belgesi",
+	"templateNewFolder": "Yeni klasör",
+	"templateDeleteTip": "Bu öğe ve tüm içeriği silinsin mi? Silinen dosyalar kurtarma için data/templates/.trash içinde saklanır.",
 	"task": "Görev",
 	"customTaskStatus": "Özel görev durumu",
 	"imageViewerPlay": "Slayt gösterisini oynat",

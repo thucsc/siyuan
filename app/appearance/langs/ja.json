@@ -1,4 +1,10 @@
 {
+	"templateManager": "テンプレート管理",
+	"templateSource": "テンプレートのソース",
+	"templatePreview": "テンプレートをプレビュー",
+	"templateContext": "プレビュー用ドキュメント",
+	"templateNewFolder": "新しいフォルダー",
+	"templateDeleteTip": "この項目とその内容をすべて削除しますか？削除したファイルは復元できるように data/templates/.trash に保持されます。",
 	"task": "タスク",
 	"customTaskStatus": "カスタムタスク状態",
 	"imageViewerPlay": "スライドショーを再生",

@@ -1,4 +1,10 @@
 {
+	"templateManager": "Gerenciador de modelos",
+	"templateSource": "Código-fonte do modelo",
+	"templatePreview": "Pré-visualizar modelo",
+	"templateContext": "Documento de pré-visualização",
+	"templateNewFolder": "Nova pasta",
+	"templateDeleteTip": "Excluir este item e todo o seu conteúdo? Os arquivos excluídos são mantidos em data/templates/.trash para recuperação.",
 	"task": "Tarefa",
 	"customTaskStatus": "Status de tarefa personalizado",
 	"imageViewerPlay": "Reproduzir apresentação de slides",

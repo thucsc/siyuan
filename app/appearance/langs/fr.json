@@ -1,4 +1,10 @@
 {
+	"templateManager": "Gestionnaire de modèles",
+	"templateSource": "Source du modèle",
+	"templatePreview": "Aperçu du modèle",
+	"templateContext": "Document d’aperçu",
+	"templateNewFolder": "Nouveau dossier",
+	"templateDeleteTip": "Supprimer cet élément et tout son contenu ? Les fichiers supprimés sont conservés dans data/templates/.trash pour permettre leur restauration.",
 	"task": "Tâche",
 	"customTaskStatus": "État de tâche personnalisé",
 	"imageViewerPlay": "Lancer le diaporama",

@@ -1,4 +1,10 @@
 {
+	"templateManager": "إدارة القوالب",
+	"templateSource": "مصدر القالب",
+	"templatePreview": "معاينة القالب",
+	"templateContext": "مستند المعاينة",
+	"templateNewFolder": "مجلد جديد",
+	"templateDeleteTip": "هل تريد حذف هذا العنصر وكل محتوياته؟ تُحفظ الملفات المحذوفة في data/templates/.trash لاستعادتها.",
 	"task": "مهمة",
 	"customTaskStatus": "حالة مهمة مخصصة",
 	"imageViewerPlay": "تشغيل عرض الشرائح",

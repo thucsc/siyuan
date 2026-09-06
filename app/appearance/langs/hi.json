@@ -1,4 +1,10 @@
 {
+	"templateManager": "टेम्पलेट प्रबंधक",
+	"templateSource": "टेम्पलेट स्रोत",
+	"templatePreview": "टेम्पलेट पूर्वावलोकन",
+	"templateContext": "पूर्वावलोकन दस्तावेज़",
+	"templateNewFolder": "नया फ़ोल्डर",
+	"templateDeleteTip": "क्या यह आइटम और इसकी सारी सामग्री हटाएँ? हटाई गई फ़ाइलें पुनर्स्थापना के लिए data/templates/.trash में रखी जाती हैं।",
 	"task": "कार्य",
 	"customTaskStatus": "कस्टम कार्य स्थिति",
 	"imageViewerPlay": "स्लाइड शो चलाएँ",

@@ -257,6 +257,13 @@ func DocSaveAsTemplate(id, name string, overwrite bool) (code int, err error) {
 }
 
 func DocSaveAsTemplateWithDatabaseMode(id, name string, overwrite bool, databaseMode TemplateDatabaseMode) (code int, err error) {
+	return DocSaveAsTemplateInDirectory(id, name, "", overwrite, databaseMode)
+}
+
+func DocSaveAsTemplateInDirectory(id, name, directory string, overwrite bool, databaseMode TemplateDatabaseMode) (code int, err error) {
+	if err = validateTemplateRelativePath(directory, true); err != nil {
+		return
+	}
 	if databaseMode == "" {
 		databaseMode = TemplateDatabaseModeCopy
 	}
@@ -304,6 +311,22 @@ func DocSaveAsTemplateWithDatabaseMode(id, name string, overwrite bool, database
 
 		if ast.NodeCodeBlockFenceInfoMarker == n.Type {
 			if lang := string(n.CodeBlockInfo); "siyuan-template" == lang || "template" == lang {
+				if n.Parent.Parent == tree.Root {
+					if attrs := templateDocumentAttributes(n.Next.Tokens); len(attrs) > 0 {
+						for _, attr := range attrs {
+							if attr[0] == "id" || attr[0] == "updated" {
+								continue
+							}
+							tree.Root.RemoveIALAttr(attr[0])
+							tree.Root.KramdownIAL = append(tree.Root.KramdownIAL, attr)
+						}
+						if next := n.Parent.Next; next != nil && next.Type == ast.NodeKramdownBlockIAL {
+							unlinks = append(unlinks, next)
+						}
+						unlinks = append(unlinks, n.Parent)
+						return ast.WalkContinue
+					}
+				}
 				// 将模板代码转换为段落文本 https://github.com/siyuan-note/siyuan/pull/15345
 				unlinks = append(unlinks, n.Parent)
 				p := treenode.NewParagraph(n.Parent.ID)
@@ -333,15 +356,34 @@ func DocSaveAsTemplateWithDatabaseMode(id, name string, overwrite bool, database
 
 	name = util.FilterFileName(name) + ".md"
 	name = util.TruncateLenFileName(name)
-	savePath := filepath.Join(util.DataDir, "templates", name)
-	if filelock.IsExist(savePath) {
+	templateFileLock.Lock()
+	defer templateFileLock.Unlock()
+	root, err := openTemplateRoot()
+	if err != nil {
+		return 0, err
+	}
+	defer root.Close()
+	relativePath := path.Join(directory, name)
+	if err = checkTemplateFilePath(root, relativePath); err != nil {
+		return 0, err
+	}
+	abs := filepath.Join(root.Name(), filepath.FromSlash(relativePath))
+	filelock.Lock(abs)
+	defer filelock.Unlock(abs)
+	_, statErr := root.Stat(relativePath)
+	if statErr == nil {
 		if !overwrite {
 			code = 1
 			return
 		}
+	} else if !errors.Is(statErr, os.ErrNotExist) {
+		return 0, statErr
 	}
 
-	err = filelock.WriteFile(savePath, md)
+	err = writeTemplateSource(root, relativePath, string(md), errors.Is(statErr, os.ErrNotExist))
+	if err == nil {
+		IncSyncIfNeeded(abs)
+	}
 	return
 }
 
@@ -698,6 +740,19 @@ func templateAttributeViewPreviewTable(node *ast.Node, plan *templateAttributeVi
 
 func RenderTemplateWithMode(p, id string, mode TemplateRenderMode) (tree *parse.Tree, dom string,
 	summary *TemplateDocTreePlanSummary, err error) {
+	return renderTemplateSource(p, id, mode, nil)
+}
+
+// 编辑器预览使用未保存的源码，文件路径仅用于解析同包子模板。
+func PreviewTemplateSource(p, id, content string) (tree *parse.Tree, dom string, summary *TemplateDocTreePlanSummary, err error) {
+	if len(content) > maxTemplateSourceSize {
+		return nil, "", nil, errors.New("template source is too large")
+	}
+	return renderTemplateSource(p, id, TemplateRenderModePreview, &content)
+}
+
+func renderTemplateSource(p, id string, mode TemplateRenderMode, content *string) (tree *parse.Tree, dom string,
+	summary *TemplateDocTreePlanSummary, err error) {
 	if TemplateRenderModeContent != mode && TemplateRenderModePreview != mode && TemplateRenderModeEditorInsert != mode {
 		err = fmt.Errorf("unsupported template render mode [%s]", mode)
 		return
@@ -715,9 +770,14 @@ func RenderTemplateWithMode(p, id string, mode TemplateRenderMode) (tree *parse.
 		return
 	}
 	block := sql.BuildBlockFromNode(node, tree)
-	md, err := os.ReadFile(p)
-	if err != nil {
-		return
+	var md []byte
+	if content == nil {
+		md, err = os.ReadFile(p)
+		if err != nil {
+			return
+		}
+	} else {
+		md = []byte(*content)
 	}
 
 	dataModel := map[string]string{}

@@ -1,4 +1,10 @@
 {
+	"templateManager": "Vorlagenverwaltung",
+	"templateSource": "Vorlagenquelltext",
+	"templatePreview": "Vorlage anzeigen",
+	"templateContext": "Vorschaudokument",
+	"templateNewFolder": "Neuer Ordner",
+	"templateDeleteTip": "Dieses Element und seinen gesamten Inhalt löschen? Gelöschte Dateien bleiben zur Wiederherstellung unter data/templates/.trash erhalten.",
 	"task": "Aufgabe",
 	"customTaskStatus": "Benutzerdefinierter Aufgabenstatus",
 	"imageViewerPlay": "Diashow starten",

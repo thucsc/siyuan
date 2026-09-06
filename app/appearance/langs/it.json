@@ -1,4 +1,10 @@
 {
+	"templateManager": "Gestione modelli",
+	"templateSource": "Sorgente del modello",
+	"templatePreview": "Anteprima del modello",
+	"templateContext": "Documento di anteprima",
+	"templateNewFolder": "Nuova cartella",
+	"templateDeleteTip": "Eliminare questo elemento e tutto il suo contenuto? I file eliminati vengono conservati in data/templates/.trash per il ripristino.",
 	"task": "Attività",
 	"customTaskStatus": "Stato attività personalizzato",
 	"imageViewerPlay": "Avvia presentazione",

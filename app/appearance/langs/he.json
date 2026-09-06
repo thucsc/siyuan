@@ -1,4 +1,10 @@
 {
+	"templateManager": "מנהל תבניות",
+	"templateSource": "מקור התבנית",
+	"templatePreview": "תצוגה מקדימה של התבנית",
+	"templateContext": "מסמך לתצוגה מקדימה",
+	"templateNewFolder": "תיקייה חדשה",
+	"templateDeleteTip": "למחוק פריט זה ואת כל תוכנו? הקבצים שנמחקו נשמרים ב־data/templates/.trash לצורך שחזור.",
 	"task": "משימה",
 	"customTaskStatus": "מצב משימה מותאם אישית",
 	"imageViewerPlay": "הפעלת מצגת",

@@ -1,4 +1,10 @@
 {
+	"templateManager": "Template manager",
+	"templateSource": "Template source",
+	"templatePreview": "Preview template",
+	"templateContext": "Preview document",
+	"templateNewFolder": "New folder",
+	"templateDeleteTip": "Delete this item and all its contents? Deleted files are retained in data/templates/.trash for recovery.",
 	"task": "Task",
 	"customTaskStatus": "Custom task status",
 	"imageViewerPlay": "Play slideshow",

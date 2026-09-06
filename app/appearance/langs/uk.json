@@ -1,4 +1,10 @@
 {
+	"templateManager": "Керування шаблонами",
+	"templateSource": "Вихідний код шаблону",
+	"templatePreview": "Перегляд шаблону",
+	"templateContext": "Документ для перегляду",
+	"templateNewFolder": "Нова папка",
+	"templateDeleteTip": "Видалити цей елемент і весь його вміст? Видалені файли зберігаються в data/templates/.trash для відновлення.",
 	"task": "Завдання",
 	"customTaskStatus": "Власний стан завдання",
 	"imageViewerPlay": "Запустити показ слайдів",

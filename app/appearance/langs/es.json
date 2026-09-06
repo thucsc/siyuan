@@ -1,4 +1,10 @@
 {
+	"templateManager": "Gestor de plantillas",
+	"templateSource": "Código de la plantilla",
+	"templatePreview": "Vista previa de la plantilla",
+	"templateContext": "Documento de vista previa",
+	"templateNewFolder": "Nueva carpeta",
+	"templateDeleteTip": "¿Eliminar este elemento y todo su contenido? Los archivos eliminados se conservan en data/templates/.trash para recuperarlos.",
 	"task": "Tarea",
 	"customTaskStatus": "Estado de tarea personalizado",
 	"imageViewerPlay": "Reproducir presentación",

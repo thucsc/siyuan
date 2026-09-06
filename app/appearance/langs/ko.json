@@ -1,4 +1,10 @@
 {
+	"templateManager": "템플릿 관리",
+	"templateSource": "템플릿 소스",
+	"templatePreview": "템플릿 미리보기",
+	"templateContext": "미리보기 문서",
+	"templateNewFolder": "새 폴더",
+	"templateDeleteTip": "이 항목과 모든 내용을 삭제하시겠습니까? 삭제된 파일은 복구할 수 있도록 data/templates/.trash에 보관됩니다.",
 	"task": "작업",
 	"customTaskStatus": "사용자 지정 작업 상태",
 	"imageViewerPlay": "슬라이드 쇼 재생",

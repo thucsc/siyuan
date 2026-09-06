@@ -1,4 +1,10 @@
 {
+	"templateManager": "Sjabloonbeheer",
+	"templateSource": "Sjabloonbron",
+	"templatePreview": "Sjabloonvoorbeeld",
+	"templateContext": "Voorbeelddocument",
+	"templateNewFolder": "Nieuwe map",
+	"templateDeleteTip": "Dit item en alle inhoud verwijderen? Verwijderde bestanden blijven voor herstel bewaard in data/templates/.trash.",
 	"task": "Taak",
 	"customTaskStatus": "Aangepaste taakstatus",
 	"imageViewerPlay": "Diavoorstelling afspelen",

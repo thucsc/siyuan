@@ -1,4 +1,10 @@
 {
+	"templateManager": "Menedżer szablonów",
+	"templateSource": "Źródło szablonu",
+	"templatePreview": "Podgląd szablonu",
+	"templateContext": "Dokument podglądu",
+	"templateNewFolder": "Nowy folder",
+	"templateDeleteTip": "Usunąć ten element i całą jego zawartość? Usunięte pliki są przechowywane w data/templates/.trash, aby można je było przywrócić.",
 	"task": "Zadanie",
 	"customTaskStatus": "Niestandardowy stan zadania",
 	"imageViewerPlay": "Odtwórz pokaz slajdów",

@@ -26,7 +26,7 @@ export const clearTemplatePreview = (element: Element) => {
     element.innerHTML = "";
 };
 
-export const previewTemplate = (pathString: string, element: Element, parentId: string) => {
+export const previewTemplate = (pathString: string, element: Element, parentId: string, source?: string) => {
     clearTemplatePreview(element);
     if (!pathString || !element.isConnected || element.closest(".fn__none")) {
         return;
@@ -37,7 +37,8 @@ export const previewTemplate = (pathString: string, element: Element, parentId: 
         id: parentId,
         path: pathString,
         mode: "preview",
-        preview: true
+        preview: true,
+        ...(source === undefined ? {} : {content: source})
     }, (response) => {
         // 切换模板或关闭预览后，忽略先前请求的返回结果。
         if (templatePreviewRequests.get(element) !== request || !element.isConnected || response.code !== 0) {

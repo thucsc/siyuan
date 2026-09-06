@@ -1,4 +1,10 @@
 {
+	"templateManager": "模板管理",
+	"templateSource": "模板源码",
+	"templatePreview": "预览模板",
+	"templateContext": "预览文档",
+	"templateNewFolder": "新建文件夹",
+	"templateDeleteTip": "删除此项目及其全部内容？删除的文件将保留在 data/templates/.trash 中，以便恢复。",
 	"task": "任务",
 	"customTaskStatus": "自定义任务状态",
 	"imageViewerPlay": "播放幻灯片",
