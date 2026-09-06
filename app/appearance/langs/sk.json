@@ -1,4 +1,5 @@
 {
+	"fileTreeDragRemoveSorts": "Tento presun je v rozpore s aktuálnym pravidlom zoradenia. Prepnúť tento zoznam na vlastné zoradenie a uložiť úplné poradie po potiahnutí?",
 	"pasteAndKeepSourceFormat": "Prilepiť so zachovaním zdrojového formátovania",
 	"templatePackageMoveTip": "Priečinky balíkov šablón nemožno premenovať ani presunúť",
 	"avDragRemoveSorts": "Tento presun je v rozpore s aktuálnymi pravidlami zoradenia. Odstrániť pravidlá zoradenia tohto zobrazenia a uložiť úplné poradie po presunutí ako vlastné poradie?",

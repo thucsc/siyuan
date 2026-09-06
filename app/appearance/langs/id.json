@@ -1,4 +1,5 @@
 {
+	"fileTreeDragRemoveSorts": "Pemindahan ini bertentangan dengan aturan pengurutan saat ini. Alihkan daftar ini ke pengurutan khusus dan simpan urutan lengkap setelah menyeret?",
 	"pasteAndKeepSourceFormat": "Tempel dan pertahankan pemformatan sumber",
 	"templatePackageMoveTip": "Folder paket templat tidak dapat diganti namanya atau dipindahkan",
 	"avDragRemoveSorts": "Pemindahan ini bertentangan dengan aturan pengurutan saat ini. Hapus aturan pengurutan untuk tampilan ini dan simpan urutan lengkap setelah penyeretan sebagai urutan khusus?",

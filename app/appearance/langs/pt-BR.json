@@ -1,4 +1,5 @@
 {
+	"fileTreeDragRemoveSorts": "Este movimento entra em conflito com a regra de ordenação atual. Alterar esta lista para ordenação personalizada e salvar a ordem completa após arrastar?",
 	"pasteAndKeepSourceFormat": "Colar mantendo a formatação original",
 	"templatePackageMoveTip": "As pastas de pacotes de modelos não podem ser renomeadas ou movidas",
 	"avDragRemoveSorts": "Este movimento entra em conflito com as regras de ordenação atuais. Remover as regras de ordenação desta visualização e salvar a ordem completa após arrastar como ordem personalizada?",
