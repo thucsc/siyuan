@@ -77,6 +77,29 @@ type DocTreeReorderResult struct {
 	ParentPath string `json:"parentPath"`
 }
 
+// 父级已经使用自定义排序时恢复继承，避免留下多余的排序覆盖。
+func resolveDraggedDocSortMode(boxID, listPath string) (*int, error) {
+	mode := util.SortModeCustom
+	if listPath == "/" {
+		if Conf.FileTree.Sort == util.SortModeCustom {
+			mode = util.SortModeFileTree
+		}
+		return &mode, nil
+	}
+	parentPath := path.Dir(strings.TrimSuffix(listPath, ".sy"))
+	if parentPath != "/" {
+		parentPath += ".sy"
+	}
+	inherited, err := ResolveDocTreeSortMode(boxID, parentPath)
+	if err != nil {
+		return nil, err
+	}
+	if inherited == util.SortModeCustom {
+		return nil, nil
+	}
+	return &mode, nil
+}
+
 // ReorderDocTree 在移动前检查完整列表，确认冲突后仅设置目标列表的排序方式。
 func ReorderDocTree(sourceIDs []string, targetID, position string, preview, removeSorts bool) (ret *DocTreeReorderResult, err error) {
 	if err = validateReorderArgs(sourceIDs, targetID, position); err != nil {
@@ -169,6 +192,13 @@ func ReorderDocTree(sourceIDs []string, targetID, position string, preview, remo
 	if preview || !ret.Changed || ret.Conflict && !removeSorts {
 		return ret, nil
 	}
+	var declaredMode *int
+	if ret.Conflict {
+		declaredMode, err = resolveDraggedDocSortMode(box.ID, listPath)
+		if err != nil {
+			return ret, err
+		}
+	}
 	if len(fromPaths) > 0 {
 		if err = MoveDocs(fromPaths, box.ID, listPath, nil); err != nil {
 			return ret, err
@@ -191,15 +221,14 @@ func ReorderDocTree(sourceIDs []string, targetID, position string, preview, remo
 		return ret, err
 	}
 	if ret.Conflict {
-		custom := util.SortModeCustom
 		if listPath == "/" {
 			boxConf := box.GetConf()
-			boxConf.SortMode = custom
+			boxConf.SortMode = *declaredMode
 			if err = box.SaveConf(boxConf); err != nil {
 				return ret, err
 			}
-			PushDocSortModeChanged("notebook", box.ID, "", "/", &custom)
-		} else if _, err = SetDocSortMode(util.GetTreeID(listPath), &custom); err != nil {
+			PushDocSortModeChanged("notebook", box.ID, "", "/", declaredMode)
+		} else if _, err = SetDocSortMode(util.GetTreeID(listPath), declaredMode); err != nil {
 			return ret, err
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/siyuan-note/siyuan/kernel/cache"
@@ -133,4 +134,62 @@ func TestDocTreeReorderMultipleSourcesKeepSelectionOrder(t *testing.T) {
 		t.Fatalf("multi-document reorder failed: %+v, %v", result, err)
 	}
 	assertSiblingCustomOrder(t, f.box.ID, "/", []string{extra.ID, f.targetID, f.sourceID})
+}
+
+func TestDocTreeReorderInheritsCustomPanelSort(t *testing.T) {
+	f := setupFileOperationTest(t)
+	Conf.FileTree.Sort = util.SortModeCustom
+	boxConf := f.box.GetConf()
+	boxConf.SortMode = util.SortModeNameASC
+	if err := f.box.SaveConf(boxConf); err != nil {
+		t.Fatal(err)
+	}
+	result, err := ReorderDocTree([]string{f.targetID}, f.sourceID, "before", false, true)
+	if err != nil || !result.Conflict {
+		t.Fatalf("reorder failed: %+v, %v", result, err)
+	}
+	if mode := f.box.GetConf().SortMode; mode != util.SortModeFileTree {
+		t.Fatalf("expected panel inheritance, got %d", mode)
+	}
+	assertSiblingCustomOrder(t, f.box.ID, "/", []string{f.targetID, f.sourceID})
+	Conf.FileTree.Sort = util.SortModeCreatedASC
+	if mode, err := ResolveDocTreeSortMode(f.box.ID, "/"); err != nil || mode != util.SortModeCreatedASC {
+		t.Fatalf("notebook did not follow later panel changes: %d, %v", mode, err)
+	}
+}
+
+func TestDraggedDocSortModeUsesParentInheritance(t *testing.T) {
+	f := setupFileOperationTest(t)
+	Conf.FileTree.Sort = util.SortModeNameASC
+	parent, err := LoadTreeByBlockID(f.sourceID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	childPath := "/" + f.sourceID + "/20260718000003-abcdefg.sy"
+	for _, parentMode := range []int{util.SortModeCustom, util.SortModeUpdatedDESC} {
+		parent.Root.SetIALAttr(DocSortModeAttr, strconv.Itoa(parentMode))
+		if _, err = filesys.WriteTree(parent); err != nil {
+			t.Fatal(err)
+		}
+		cache.RemoveDocIALInBox(parent.Path, parent.Box)
+		mode, err := resolveDraggedDocSortMode(f.box.ID, childPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if parentMode == util.SortModeCustom {
+			if mode != nil {
+				t.Fatalf("expected parent inheritance, got %d", *mode)
+			}
+		} else if mode == nil || *mode != util.SortModeCustom {
+			t.Fatalf("expected explicit custom sort, got %v", mode)
+		}
+	}
+	boxConf := f.box.GetConf()
+	boxConf.SortMode = util.SortModeCustom
+	if err = f.box.SaveConf(boxConf); err != nil {
+		t.Fatal(err)
+	}
+	if mode, err := resolveDraggedDocSortMode(f.box.ID, f.sourcePath); err != nil || mode != nil {
+		t.Fatalf("expected notebook inheritance despite the document override: %v, %v", mode, err)
+	}
 }
