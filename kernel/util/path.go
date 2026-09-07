@@ -467,17 +467,24 @@ func IsSensitivePath(p string) bool {
 	return false
 }
 
-// isSensitivePath 执行实际的敏感性黑名单匹配，不解析符号链接。
+// isSensitivePath 执行敏感性黑名单匹配，必要时解析工作空间路径，但不解析目标路径。
 func isSensitivePath(p string) bool {
 	toCheckPathLower := filepath.Clean(strings.ToLower(p))
 	toCheckNameLower := filepath.Base(toCheckPathLower)
+	workspaceDir := WorkspaceDir
+	inWorkspace := gulu.File.IsSubPath(workspaceDir, p)
+	if !inWorkspace && workspaceDir != "" {
+		// 静态资源使用解析后的真实路径，工作空间也需采用相同形式判断归属及 conf、temp 目录。
+		// 仅解析工作空间根目录，不能将指向外部敏感文件的资源符号链接视为工作空间内文件。
+		if resolved, err := filepath.EvalSymlinks(workspaceDir); err == nil && gulu.File.IsSubPath(resolved, p) {
+			workspaceDir = resolved
+			inWorkspace = true
+		}
+	}
 
-	// 系统目录前缀检查仅对工作空间外的路径执行。
-	// 调用方传入的工作空间内路径（如 assets、export）都已用 IsSubPath(WorkspaceDir) 校验过，
-	// 工作空间不可能位于 /etc、/var/log 等系统敏感目录；而 iOS 等沙箱平台的合法数据路径恰好以
-	// /var 开头（/var/mobile/Containers/Data/Application/...），对工作空间内路径执行系统目录前缀
-	// 检查会把 iOS 上正常的 assets/export 文件误判为敏感路径，导致伺服返回 403。
-	if !gulu.File.IsSubPath(WorkspaceDir, p) {
+	// 系统目录前缀检查仅对工作空间外的路径执行，工作空间内仍需检查配置、临时文件和凭据。
+	// iOS 沙箱及 Linux /var/home 下的合法工作空间可能位于 /var，需按工作空间边界判断。
+	if !inWorkspace {
 		// 敏感目录前缀（UNIX 风格）
 		prefixes := []string{
 			"/.",
@@ -527,14 +534,14 @@ func isSensitivePath(p string) bool {
 	}
 
 	// 工作空间/conf 目录（小写比较）
-	workspaceConfPrefix := strings.ToLower(filepath.Join(WorkspaceDir, "conf"))
+	workspaceConfPrefix := strings.ToLower(filepath.Join(workspaceDir, "conf"))
 	if strings.HasPrefix(toCheckPathLower, workspaceConfPrefix) {
 		return true
 	}
 
 	// 只允许导出工作空间/temp/export 目录，不允许导出工作空间/temp 目录（小写比较）
-	workspaceTempExportPrefix := strings.ToLower(filepath.Join(WorkspaceDir, "temp", "export"))
-	workspaceTempPrefix := strings.ToLower(filepath.Join(WorkspaceDir, "temp"))
+	workspaceTempExportPrefix := strings.ToLower(filepath.Join(workspaceDir, "temp", "export"))
+	workspaceTempPrefix := strings.ToLower(filepath.Join(workspaceDir, "temp"))
 	if strings.HasPrefix(toCheckPathLower, workspaceTempPrefix) && !strings.HasPrefix(toCheckPathLower, workspaceTempExportPrefix) {
 		return true
 	}
