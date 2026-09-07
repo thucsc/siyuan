@@ -102,6 +102,11 @@ func getUniqueFilename(c *gin.Context) {
 		return
 	}
 
+	if rejectEncryptedBoxPath(filePath) {
+		ret.Code = -3
+		ret.Msg = model.Conf.Language(321)
+		return
+	}
 	ret.Data = map[string]any{
 		"path": util.GetUniqueFilename(filePath),
 	}
